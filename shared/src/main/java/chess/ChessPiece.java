@@ -84,8 +84,6 @@ public class ChessPiece {
             while (i < 8 & j < 8){ // ++
                 i++;
                 j++;
-                String formatted = String.format("Position++: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i,j)) == null) {
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i, j), null));
                 }
@@ -105,8 +103,6 @@ public class ChessPiece {
             while (i < 8 & j > 1 ){ // +-
                 i++;
                 j--;
-                String formatted = String.format("Position+-: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i,j)) == null ){
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i,j), null));
                 }
@@ -125,8 +121,6 @@ public class ChessPiece {
             while (i > 1 & j > 1){ // --
                 i--;
                 j--;
-                String formatted = String.format("Position--: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i,j)) == null){
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i,j), null));
                 }
@@ -145,8 +139,6 @@ public class ChessPiece {
             while (i > 1 & j < 8){ // -+
                 i--;
                 j++;
-                String formatted = String.format("Position-+: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i,j)) == null){
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i,j), null));
                 }
@@ -174,19 +166,13 @@ public class ChessPiece {
                 int row = square[0];
                 int col = square[1];
                 if ((row > 1 && row < 8) & (col > 1 && col < 8)) {
-                    String formatted = String.format("Position: %d,%d", row, col);
-                    System.out.println(formatted);
                     if (board.getPiece(new ChessPosition(row,col)) == null) {
                         possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(row, col), null));
-
                     }
                     else if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != color){
                         System.out.println("CAPTURABLE PIECE DETECTED");
                         possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(row, col), null));
                         System.out.println("ADDED, NOW BREAKING LOOP");
-                    }
-                    else{
-                        System.out.println("BREAK");
                     }
                 }
             }
@@ -201,19 +187,13 @@ public class ChessPiece {
                 int row = square[0];
                 int col = square[1];
                 if ((row >= 1 && row <= 8) & (col >= 1 && col <= 8)) {
-                    String formatted = String.format("Position: %d,%d", row, col);
-                    System.out.println(formatted);
                     if (board.getPiece(new ChessPosition(row,col)) == null) {
                         possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(row, col), null));
-
                     }
                     else if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != color){
                         System.out.println("CAPTURABLE PIECE DETECTED");
                         possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(row, col), null));
                         System.out.println("ADDED, NOW BREAKING LOOP");
-                    }
-                    else{
-                        System.out.println("BREAK");
                     }
                 }
             }
@@ -328,8 +308,6 @@ public class ChessPiece {
             while (i < 8 & j < 8){ // ++
                 i++;
                 j++;
-                String formatted = String.format("Position++: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i,j)) == null) {
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i, j), null));
                 }
@@ -340,7 +318,6 @@ public class ChessPiece {
                     break;
                 }
                 else{
-                    System.out.println("BREAK");
                     break;
                 }
             }
@@ -349,8 +326,6 @@ public class ChessPiece {
             while (i < 8 & j > 1 ){ // +-
                 i++;
                 j--;
-                String formatted = String.format("Position+-: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i,j)) == null ){
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i,j), null));
                 }
@@ -369,8 +344,6 @@ public class ChessPiece {
             while (i > 1 & j > 1){ // --
                 i--;
                 j--;
-                String formatted = String.format("Position--: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i,j)) == null){
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i,j), null));
                 }
@@ -389,8 +362,6 @@ public class ChessPiece {
             while (i > 1 & j < 8){ // -+
                 i--;
                 j++;
-                String formatted = String.format("Position-+: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i,j)) == null){
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i,j), null));
                 }
@@ -408,8 +379,6 @@ public class ChessPiece {
             j = colVal;
             while (i < 8) { // +0
                 i++;
-                String formatted = String.format("Position+0: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i, j)) == null){
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i,j), null));
                 }
@@ -426,8 +395,6 @@ public class ChessPiece {
             i = rowVal;
             while (i > 1) { // -0
                 i--;
-                String formatted = String.format("Position-0: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i, j)) == null){
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i,j), null));
                 }
@@ -444,8 +411,6 @@ public class ChessPiece {
             i = rowVal;
             while (j < 8) { // 0+
                 j++;
-                String formatted = String.format("Position0+: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i, j)) == null){
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i,j), null));
                 }
@@ -459,12 +424,9 @@ public class ChessPiece {
                     break;
                 }
             }
-            i = rowVal;
             j = colVal;
             while (j > 1) { // 0-
                 j--;
-                String formatted = String.format("Position0-: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i, j)) == null){
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i,j), null));
                 }
@@ -486,8 +448,6 @@ public class ChessPiece {
             int j = colVal;
             while (i < 8) { // +0
                 i++;
-                String formatted = String.format("Position+0: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i, j)) == null){
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i,j), null));
                 }
@@ -504,8 +464,6 @@ public class ChessPiece {
             i = rowVal;
             while (i > 1) { // -0
                 i--;
-                String formatted = String.format("Position-0: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i, j)) == null){
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i,j), null));
                 }
@@ -522,8 +480,6 @@ public class ChessPiece {
             i = rowVal;
             while (j < 8) { // 0+
                 j++;
-                String formatted = String.format("Position0+: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i, j)) == null){
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i,j), null));
                 }
@@ -537,12 +493,9 @@ public class ChessPiece {
                     break;
                 }
             }
-            i = rowVal;
             j = colVal;
             while (j > 1) { // 0-
                 j--;
-                String formatted = String.format("Position0-: %d,%d", i, j);
-                System.out.println(formatted);
                 if (board.getPiece(new ChessPosition(i, j)) == null){
                     possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(i,j), null));
                 }
