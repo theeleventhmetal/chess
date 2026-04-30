@@ -70,15 +70,14 @@ public class ChessPiece {
         int rowVal = myPosition.getRow();
         int colVal = myPosition.getColumn();
         Collection<ChessMove> possibleMoves = null;
+        possibleMoves = new ArrayList<>();
         ChessGame.TeamColor color = piece.getTeamColor();
         ChessGame.TeamColor white = ChessGame.TeamColor.WHITE;
         ChessGame.TeamColor black = ChessGame.TeamColor.BLACK;
 
 
 
-
         if (piece.getPieceType() == PieceType.BISHOP) {
-            possibleMoves = new ArrayList<>();
             int i = rowVal;
             int j = colVal;
             while (i < 8 & j < 8){ // ++
@@ -159,7 +158,6 @@ public class ChessPiece {
 
 
         if (piece.getPieceType() == PieceType.KING) {
-            possibleMoves = new ArrayList<>();
             int[][] neighborSquares = {{rowVal-1, colVal-1}, {rowVal-1, colVal}, {rowVal-1, colVal+1}, {rowVal, colVal-1}, {rowVal, colVal+1}, {rowVal+1, colVal-1}, {rowVal+1, colVal}, {rowVal+1, colVal+1}};
 
             for (int[] square:neighborSquares){
@@ -180,7 +178,6 @@ public class ChessPiece {
 
 
         if (piece.getPieceType() == PieceType.KNIGHT) {
-            possibleMoves = new ArrayList<>();
             int[][] neighborSquares = {{rowVal+2, colVal+1}, {rowVal+2, colVal-1}, {rowVal-2, colVal-1}, {rowVal-2, colVal+1}, {rowVal+1, colVal+2}, {rowVal+1, colVal-2}, {rowVal-1, colVal-2}, {rowVal-1, colVal+2}};
 
             for (int[] square:neighborSquares){
@@ -200,7 +197,6 @@ public class ChessPiece {
         }
 
         if ((piece.getPieceType() == PieceType.PAWN)) {
-            possibleMoves = new ArrayList<>();
 
             if (color == white){ //WHITE PIECES MOVE UP THE GRID
                 if(rowVal == 2){ // WHITE FIRST MOVE
@@ -302,7 +298,6 @@ public class ChessPiece {
         }
 
         if (piece.getPieceType() == PieceType.QUEEN) {
-            possibleMoves = new ArrayList<>();
             int i = rowVal;
             int j = colVal;
             while (i < 8 & j < 8){ // ++
@@ -443,7 +438,6 @@ public class ChessPiece {
         }
 
         if (piece.getPieceType() == PieceType.ROOK){
-            possibleMoves = new ArrayList<>();
             int i = rowVal;
             int j = colVal;
             while (i < 8) { // +0
