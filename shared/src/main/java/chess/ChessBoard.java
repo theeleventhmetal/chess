@@ -82,11 +82,11 @@ public class ChessBoard {
         addPiece(new ChessPosition(7,8), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
     }
 
-    public ChessBoard DeepCopy(){
+    public ChessBoard deepCopy(){
         ChessBoard deepCopy = new ChessBoard();
         for (int i = 1; i <= 8; i++) {
-            for (int j = 1; j < 8; j++) {
-                ChessPiece currentPiece = squares[i][j];
+            for (int j = 1; j <= 8; j++) {
+                ChessPiece currentPiece = getPiece(new ChessPosition(i,j));
                 if (currentPiece != null) {
                     ChessPiece.PieceType pieceType = currentPiece.getPieceType();
                     ChessGame.TeamColor pieceColor = currentPiece.getTeamColor();
