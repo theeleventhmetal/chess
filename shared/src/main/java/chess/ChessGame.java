@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * A class that can manage a chess game, making moves on a board
@@ -12,16 +13,18 @@ import java.util.Collection;
 public class ChessGame {
 
     ChessBoard board;
+    TeamColor activeColor;
 
     public ChessGame() {
         this.board = null;
+        this.activeColor = null;
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return activeColor;
     }
 
     /**
@@ -30,7 +33,21 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        this.activeColor = team;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return Objects.equals(board, chessGame.board) && activeColor == chessGame.activeColor;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(board, activeColor);
     }
 
     /**
@@ -140,7 +157,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+
     }
 
     /**
