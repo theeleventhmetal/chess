@@ -104,7 +104,7 @@ public class ChessGame {
                 if (currentPiece != null) {
                     if (currentPiece.getPieceType() == ChessPiece.PieceType.KING && currentPiece.getTeamColor() == teamColor) {
                         kingPosition = new ChessPosition(i, j);
-                        System.out.printf("King Located at [%d, %d]\n",i, j);
+//                        System.out.printf("King Located at [%d, %d]\n",i, j);
                         break outer;
                     }
                 }
@@ -117,11 +117,11 @@ public class ChessGame {
                 if (currentPiece != null){
                     if (currentPiece.getTeamColor() != teamColor){
                         Collection<ChessMove> currentPossibleMoves = currentPiece.pieceMoves(board, new ChessPosition(x,y));
-                        System.out.printf("CurrentPiece: %s\n", currentPiece.getPieceType().toString());
+//                        System.out.printf("CurrentPiece: %s\n", currentPiece.getPieceType().toString());
                         for(ChessMove move: currentPossibleMoves){
-                            System.out.printf("%s ?= %s \n", kingPosition.toString(), move.getEndPosition().toString());
+//                            System.out.printf("%s ?= %s \n", kingPosition.toString(), move.getEndPosition().toString());
                             if (move.getEndPosition().equals(kingPosition)){
-                                System.out.printf("Piece that can check found at [%d, %d]",x,y);
+//                                System.out.printf("Piece that can check found at [%d, %d]",x,y);
                                 return true;
                             }
                         }
