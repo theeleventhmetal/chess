@@ -1,7 +1,9 @@
 package server;
 import com.google.gson.Gson;
+import dataaccess.AlreadyTakenException;
 import dataaccess.DataAccessException;
 import io.javalin.http.Context;
+import model.ErrorResult;
 import model.RegisterRequest;
 import model.RegisterResult;
 import service.UserService;
@@ -15,17 +17,26 @@ public class UserHandler {
         this.userService = userService;
     }
 
-    public void register(Context ctx) throws DataAccessException {
-        String jsonBody = ctx.body();
+    public void register(Context ctx) {
+        try {
 
-        RegisterRequest req = gson.fromJson(jsonBody, RegisterRequest.class);
+            String jsonBody = ctx.body();
 
-        RegisterResult result = userService.register(req);
+            RegisterRequest req = gson.fromJson(jsonBody, RegisterRequest.class);
 
-        ctx.status(200);
-        ctx.contentType("application/json");
-        ctx.json(gson.toJson(result));
+            RegisterResult result = userService.register(req);
 
-        // CATCH EXCEPTIONS HERE
+            ctx.status(200);
+            ctx.contentType("application/json");
+            ctx.json(gson.toJson(result));
+
+        } catch (AlreadyTakenException e) {
+            ctx.status(400);
+            ctx.contentType("application/json");
+            ctx.json(new ErrorResult(e.getMessage()));
+        }
+
+
+        }
     }
 }
