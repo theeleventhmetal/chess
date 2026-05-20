@@ -51,4 +51,13 @@ public class UserService {
 
         return new LoginResult(request.username(), newAuthToken);
     }
+
+    public void logout(String authToken) throws DataAccessException {
+
+        if(authDAO.getAuth(authToken) == null){
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+
+        authDAO.removeAuth(authToken);
+    }
 }

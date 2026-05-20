@@ -8,6 +8,8 @@ import io.javalin.http.Context;
 import model.*;
 import service.UserService;
 
+import java.util.Map;
+
 public class UserHandler {
 
     private final UserService userService;
@@ -73,4 +75,42 @@ public class UserHandler {
             ctx.result(gson.toJson(new ErrorResult("Error: " + e.getMessage())));
         }
     }
+
+    public void logout(Context ctx) {
+        try{
+
+            String authToken = ctx.header("authorization");
+
+            userService.logout(authToken);
+
+            ctx.status(200);
+            ctx.contentType("application/json");
+            ctx.json(gson.toJson(Map.of()));
+
+        } catch (UnauthorizedException e) {
+            ctx.status(401);
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(new ErrorResult(e.getMessage())));
+        }  catch (Exception e) {
+            ctx.status(500);
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(new ErrorResult("Error: " + e.getMessage())));
+        }
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
