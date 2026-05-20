@@ -216,18 +216,7 @@ public class ChessPiece {
                 {rowVal - 1, colVal},
                 {rowVal - 1, colVal + 1}};
 
-        for (int[] square : surroundingSquares) {
-            int row = square[0];
-            int col = square[1];
-            if ((row >= 1 && row <= 8) && (col >= 1 && col <= 8)) {
-                if (board.getPiece(new ChessPosition(row, col)) == null) {
-                    possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(row, col), null));
-                }
-                if (board.getPiece(new ChessPosition(row, col)) != null && board.getPiece(new ChessPosition(row, col)).getTeamColor() != color) {
-                    possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(row, col), null));
-                }
-            }
-        }
+        kingKnightHelper(possibleMoves, surroundingSquares, board, rowVal, colVal, color);
     }
 
     private void knightMoves(ChessBoard board,
@@ -245,6 +234,15 @@ public class ChessPiece {
                 {rowVal - 2, colVal + 1},
                 {rowVal - 2, colVal - 1}};
 
+        kingKnightHelper(possibleMoves, surroundingSquares, board, rowVal, colVal, color);
+    }
+
+    private void kingKnightHelper(Collection<ChessMove> possibleMoves,
+                                  int[][] surroundingSquares,
+                                  ChessBoard board,
+                                  int rowVal,
+                                  int colVal,
+                                  ChessGame.TeamColor color){
         for (int[] square : surroundingSquares) {
             int row = square[0];
             int col = square[1];
