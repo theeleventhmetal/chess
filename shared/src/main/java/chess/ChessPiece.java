@@ -324,10 +324,14 @@ public class ChessPiece {
             possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset), null));
         }
         else{
-            possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset), PieceType.QUEEN));
-            possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset), PieceType.KNIGHT));
-            possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset), PieceType.ROOK));
-            possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset), PieceType.BISHOP));
+            possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset),
+                    PieceType.QUEEN));
+            possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset),
+                    PieceType.KNIGHT));
+            possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset),
+                    PieceType.ROOK));
+            possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset),
+                    PieceType.BISHOP));
         }
     }
 }
