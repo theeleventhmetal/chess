@@ -1,6 +1,7 @@
 package server;
 import com.google.gson.Gson;
 import dataaccess.AlreadyTakenException;
+import dataaccess.BadRequestException;
 import dataaccess.DataAccessException;
 import io.javalin.http.Context;
 import model.ErrorResult;
@@ -28,15 +29,20 @@ public class UserHandler {
 
             ctx.status(200);
             ctx.contentType("application/json");
-            ctx.json(gson.toJson(result));
+            ctx.result(gson.toJson(result));
 
         } catch (AlreadyTakenException e) {
+            ctx.status(403);
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(new ErrorResult(e.getMessage())));
+        } catch (BadRequestException e) {
             ctx.status(400);
             ctx.contentType("application/json");
-            ctx.json(new ErrorResult(e.getMessage()));
-        }
-
-
+            ctx.result(gson.toJson(new ErrorResult(e.getMessage())));
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(new ErrorResult("Error: " + e.getMessage())));
         }
     }
 }

@@ -1,8 +1,5 @@
 package service;
-import dataaccess.AlreadyTakenException;
-import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
-import dataaccess.UserDAO;
+import dataaccess.*;
 import model.AuthData;
 import model.RegisterRequest;
 import model.RegisterResult;
@@ -23,11 +20,11 @@ public class UserService {
 
     public RegisterResult register(RegisterRequest request) throws DataAccessException {
         if (request.username() == null || request.password() == null || request.email() == null){
-            throw new DataAccessException("Bad Request");
+            throw new BadRequestException("Error: bad request");
         }
 
         if (userDAO.getUser(request.username()) != null){
-            throw new AlreadyTakenException("User already Exists!");
+            throw new AlreadyTakenException("Error: already taken");
         }
 
         UserData userData = new UserData(request.username(), request.password(), request.email());
