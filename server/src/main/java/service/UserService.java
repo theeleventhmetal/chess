@@ -1,9 +1,6 @@
 package service;
 import dataaccess.*;
-import model.AuthData;
-import model.RegisterRequest;
-import model.RegisterResult;
-import model.UserData;
+import model.*;
 
 import java.util.UUID;
 
@@ -35,5 +32,23 @@ public class UserService {
         authDAO.createAuth(authData);
 
         return new RegisterResult(request.username(), authToken);
+    }
+
+    public LoginResult login(LoginRequest request) throws DataAccessException {
+        UserData user = userDAO.getUser(request.username());
+
+        if (request.username() == null || request.password() == null){
+            throw new BadRequestException("Error: bad request");
+        }
+
+        if (user == null || !user.password().equals(request.password()) ){
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+
+        String newAuthToken = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(newAuthToken, request.username());
+        authDAO.createAuth(authData);
+
+        return new LoginResult(request.username(), newAuthToken);
     }
 }

@@ -3,10 +3,9 @@ import com.google.gson.Gson;
 import dataaccess.AlreadyTakenException;
 import dataaccess.BadRequestException;
 import dataaccess.DataAccessException;
+import dataaccess.UnauthorizedException;
 import io.javalin.http.Context;
-import model.ErrorResult;
-import model.RegisterRequest;
-import model.RegisterResult;
+import model.*;
 import service.UserService;
 
 public class UserHandler {
@@ -33,6 +32,35 @@ public class UserHandler {
 
         } catch (AlreadyTakenException e) {
             ctx.status(403);
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(new ErrorResult(e.getMessage())));
+        } catch (BadRequestException e) {
+            ctx.status(400);
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(new ErrorResult(e.getMessage())));
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(new ErrorResult("Error: " + e.getMessage())));
+        }
+    }
+
+
+    public void login(Context ctx) {
+        try {
+
+            String jsonBody = ctx.body();
+
+            LoginRequest req = gson.fromJson(jsonBody, LoginRequest.class);
+
+            LoginResult result = userService.login(req);
+
+            ctx.status(200);
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(result));
+
+        } catch (UnauthorizedException e) {
+            ctx.status(401);
             ctx.contentType("application/json");
             ctx.result(gson.toJson(new ErrorResult(e.getMessage())));
         } catch (BadRequestException e) {

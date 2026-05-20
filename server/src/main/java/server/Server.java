@@ -26,6 +26,7 @@ public class Server {
         });
         javalin.post("/user", userHandler::register);
         javalin.delete("/db", clearHandler::clear);
+        javalin.post("/session", userHandler::login);
     }
 
     public int run(int desiredPort) {
