@@ -4,6 +4,7 @@ import dataaccess.*;
 import io.javalin.*;
 import io.javalin.json.JavalinGson;
 import service.ClearService;
+import service.GameService;
 import service.UserService;
 
 public class Server {
@@ -18,6 +19,9 @@ public class Server {
         UserService userService = new UserService(userDAO, authDAO);
         UserHandler userHandler = new UserHandler(userService);
 
+        GameService gameService = new GameService(gameDAO, authDAO);
+        GameHandler gameHandler = new GameHandler(gameService);
+
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
         ClearHandler clearHandler = new ClearHandler(clearService);
 
@@ -30,8 +34,8 @@ public class Server {
         javalin.post("/session", userHandler::login);
         javalin.delete("/session", userHandler::logout);
 
-
-
+        javalin.get("/game",gameHandler::listGames);
+        javalin.post("/game", gameHandler::createGame);
     }
 
     public int run(int desiredPort) {

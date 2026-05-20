@@ -30,8 +30,7 @@ public class GameService {
         return new ListGameResult(list);
     }
 
-    public CreateGameResponse createGame(CreateGameRequest request) throws DataAccessException{
-        String authToken = request.authToken();
+    public CreateGameResponse createGame(String authToken, CreateGameRequest request) throws DataAccessException{
         String gameName = request.gameName();
 
         if(authDAO.getAuth(authToken) == null){
