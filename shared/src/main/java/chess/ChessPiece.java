@@ -105,7 +105,7 @@ public class ChessPiece {
                     if ((colVal < 8) &&
                             board.getPiece(new ChessPosition(rowVal + 1, colVal + 1)) != null &&
                             board.getPiece(new ChessPosition(rowVal + 1, colVal + 1)).getTeamColor() == black) {
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal + 1), PieceType.QUEEN));
+                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal+1), PieceType.QUEEN));
                         possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal + 1), PieceType.ROOK));
                         possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal + 1), PieceType.KNIGHT));
                         possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal + 1), PieceType.BISHOP));
@@ -333,5 +333,9 @@ public class ChessPiece {
         }
 
         return possibleMoves;
+    }
+
+    private void addMove(Collection<ChessMove> possibleMoves, int rowVal, int colVal, int rowOffset, int colOffset, PieceType promotionPiece){
+        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset), promotionPiece));
     }
 }
