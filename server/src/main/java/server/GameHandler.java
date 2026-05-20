@@ -1,11 +1,14 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.AlreadyTakenException;
 import dataaccess.BadRequestException;
 import dataaccess.UnauthorizedException;
 import service.GameService;
 import io.javalin.http.Context;
 import model.*;
+
+import java.util.Map;
 
 public class GameHandler {
     private final GameService gameService;
@@ -53,6 +56,38 @@ public class GameHandler {
             ctx.contentType("application/json");
             ctx.result(gson.toJson(result));
 
+        } catch (UnauthorizedException e) {
+            ctx.status(401);
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(new ErrorResult(e.getMessage())));
+        } catch (BadRequestException e) {
+            ctx.status(400);
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(new ErrorResult(e.getMessage())));
+        }  catch (Exception e) {
+            ctx.status(500);
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(new ErrorResult("Error: " + e.getMessage())));
+        }
+    }
+
+    public void joinGame(Context ctx){
+        try{
+            String authToken = ctx.header("authorization");
+            String jsonBody = ctx.body();
+
+            JoinGameRequest req = gson.fromJson(jsonBody, JoinGameRequest.class);
+
+            gameService.joinGame(authToken, req);
+
+            ctx.status(200);
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(Map.of()));
+
+        } catch (AlreadyTakenException e) {
+            ctx.status(403);
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(new ErrorResult(e.getMessage())));
         } catch (UnauthorizedException e) {
             ctx.status(401);
             ctx.contentType("application/json");

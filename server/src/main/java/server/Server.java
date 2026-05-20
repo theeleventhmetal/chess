@@ -36,6 +36,8 @@ public class Server {
 
         javalin.get("/game",gameHandler::listGames);
         javalin.post("/game", gameHandler::createGame);
+        javalin.put("/game", gameHandler::joinGame);
+
     }
 
     public int run(int desiredPort) {

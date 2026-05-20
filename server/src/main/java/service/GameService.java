@@ -2,10 +2,7 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.*;
-import model.CreateGameRequest;
-import model.CreateGameResponse;
-import model.GameData;
-import model.ListGameResult;
+import model.*;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -50,5 +47,39 @@ public class GameService {
         return new CreateGameResponse(gameID);
     }
 
+    public void joinGame(String authToken, JoinGameRequest request) throws DataAccessException {
+        int gameID = request.gameID();
+        String desiredColor = request.playerColor();
 
+        if(authDAO.getAuth(authToken) == null){
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+        if (gameID == 0 || desiredColor == null ||(!desiredColor.equals("WHITE") && !desiredColor.equals("BLACK"))){
+            throw new BadRequestException("Error: bad request");
+        }
+
+        GameData gameData = gameDAO.getGame(gameID);
+
+        if (desiredColor.equals("WHITE") && gameData.whiteUsername() != null){
+            throw new AlreadyTakenException("Error: already taken");
+        }
+        if (desiredColor.equals("BLACK") && gameData.blackUsername() != null){
+            throw new AlreadyTakenException("Error: already taken");
+        }
+
+        AuthData authData = authDAO.getAuth(authToken);
+        String username = authData.username();
+
+        if (desiredColor.equals("WHITE")) {
+            GameData newGameData = new GameData(gameID, username, gameData.blackUsername(), gameData.gameName(), gameData.game());
+            gameDAO.updateGame(newGameData);
+        }
+        else{
+            GameData newGameData = new GameData(gameID, gameData.whiteUsername(), username, gameData.gameName(), gameData.game());
+            gameDAO.updateGame(newGameData);
+        }
+    }
 }
+
+
+
