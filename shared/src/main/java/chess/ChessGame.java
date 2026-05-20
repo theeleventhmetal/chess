@@ -144,12 +144,11 @@ public class ChessGame {
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 currentPiece = board.getPiece(new ChessPosition(i, j));
-                if (currentPiece != null) {
-                    if (currentPiece.getPieceType() == ChessPiece.PieceType.KING && currentPiece.getTeamColor() == teamColor) {
-                        kingPosition = new ChessPosition(i, j);
-//                        System.out.printf("King Located at [%d, %d]\n",i, j);
-                        break outer;
-                    }
+                if (currentPiece != null &&
+                    currentPiece.getPieceType() == ChessPiece.PieceType.KING &&
+                    currentPiece.getTeamColor() == teamColor) {
+                    kingPosition = new ChessPosition(i, j);
+                    break outer;
                 }
             }
         }
@@ -157,16 +156,14 @@ public class ChessGame {
         for (int x = 1; x <= 8; x++){
             for (int y = 1; y <= 8; y++){
                 currentPiece = board.getPiece(new ChessPosition(x, y));
-                if (currentPiece != null){
-                    if (currentPiece.getTeamColor() != teamColor){
-                        Collection<ChessMove> currentPossibleMoves = currentPiece.pieceMoves(board, new ChessPosition(x,y));
+                if (currentPiece != null && currentPiece.getTeamColor() != teamColor){
+                    Collection<ChessMove> currentPossibleMoves = currentPiece.pieceMoves(board, new ChessPosition(x,y));
 //                        System.out.printf("CurrentPiece: %s\n", currentPiece.getPieceType().toString());
-                        for(ChessMove move: currentPossibleMoves){
+                    for(ChessMove move: currentPossibleMoves){
 //                            System.out.printf("%s ?= %s \n", kingPosition.toString(), move.getEndPosition().toString());
-                            if (move.getEndPosition().equals(kingPosition)){
+                        if (move.getEndPosition().equals(kingPosition)){
 //                                System.out.printf("Piece that can check found at [%d, %d]",x,y);
-                                return true;
-                            }
+                            return true;
                         }
                     }
                 }
@@ -191,11 +188,11 @@ public class ChessGame {
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 currentPiece = board.getPiece(new ChessPosition(i, j));
-                if (currentPiece != null) {
-                    if (currentPiece.getPieceType() == ChessPiece.PieceType.KING && currentPiece.getTeamColor() == teamColor) {
+                if (currentPiece != null &&
+                    currentPiece.getPieceType() == ChessPiece.PieceType.KING &&
+                    currentPiece.getTeamColor() == teamColor) {
                         kingPosition = new ChessPosition(i, j);
                         break outer;
-                    }
                 }
             }
         }
@@ -209,11 +206,9 @@ public class ChessGame {
         for (int x = 1; x <= 8; x++){
             for (int y = 1; y <= 8; y++){
                 currentPiece = board.getPiece(new ChessPosition(x, y));
-                if (currentPiece != null){
-                    if (currentPiece.getTeamColor() == teamColor) {
-                        if (!validMoves(new ChessPosition(x,y)).isEmpty()){
-                            return false;
-                        }
+                if (currentPiece != null && currentPiece.getTeamColor() == teamColor){
+                    if (!validMoves(new ChessPosition(x,y)).isEmpty()){
+                        return false;
                     }
                 }
             }
