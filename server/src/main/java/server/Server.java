@@ -24,10 +24,13 @@ public class Server {
         javalin = Javalin.create(config -> {
             config.staticFiles.add("web");
         });
-        javalin.post("/user", userHandler::register);
         javalin.delete("/db", clearHandler::clear);
+
+        javalin.post("/user", userHandler::register);
         javalin.post("/session", userHandler::login);
         javalin.delete("/session", userHandler::logout);
+
+
 
     }
 
