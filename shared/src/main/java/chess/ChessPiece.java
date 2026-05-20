@@ -86,15 +86,15 @@ public class ChessPiece {
         }
 
         if (piece.getPieceType() == PieceType.KNIGHT) {
-            knightMoves(piece, board, possibleMoves, rowVal, colVal, color);
+            knightMoves(board, possibleMoves, rowVal, colVal, color);
         }
 
         if (piece.getPieceType() == PieceType.QUEEN || piece.getPieceType() == PieceType.BISHOP) {
-            queenBishopMoves(piece, board, possibleMoves, rowVal, colVal, color);
+            queenBishopMoves(board, possibleMoves, rowVal, colVal, color);
         }
 
         if (piece.getPieceType() == PieceType.QUEEN || piece.getPieceType() == PieceType.ROOK){
-            queenRookMoves(piece, board, possibleMoves, rowVal, colVal, color);
+            queenRookMoves(board, possibleMoves, rowVal, colVal, color);
         }
         return possibleMoves;
     }
@@ -116,7 +116,12 @@ public class ChessPiece {
         }
     }
 
-    private void pawnMoves(ChessPiece piece, ChessBoard board, Collection<ChessMove> possibleMoves, int rowVal, int colVal, ChessGame.TeamColor color){
+    private void pawnMoves(ChessPiece piece,
+                           ChessBoard board,
+                           Collection<ChessMove> possibleMoves,
+                           int rowVal, int colVal,
+                           ChessGame.TeamColor color){
+
         ChessGame.TeamColor white = ChessGame.TeamColor.WHITE;
         ChessGame.TeamColor black = ChessGame.TeamColor.BLACK;
 
@@ -191,11 +196,15 @@ public class ChessPiece {
                     addPawnMove(possibleMoves, rowVal, colVal, -1, -1, true);
                 }
             }
-
         }
     }
 
-    private void kingMoves(ChessPiece piece, ChessBoard board, Collection<ChessMove> possibleMoves, int rowVal, int colVal, ChessGame.TeamColor color){
+    private void kingMoves(ChessPiece piece,
+                           ChessBoard board,
+                           Collection<ChessMove> possibleMoves,
+                           int rowVal,
+                           int colVal,
+                           ChessGame.TeamColor color){
 
         int[][] surroundingSquares = {
                 {rowVal + 1, colVal + 1},
@@ -221,7 +230,11 @@ public class ChessPiece {
         }
     }
 
-    private void knightMoves(ChessPiece piece, ChessBoard board, Collection<ChessMove> possibleMoves, int rowVal, int colVal, ChessGame.TeamColor color){
+    private void knightMoves(ChessBoard board,
+                             Collection<ChessMove> possibleMoves,
+                             int rowVal,
+                             int colVal,
+                             ChessGame.TeamColor color){
         int[][] surroundingSquares = {
                 {rowVal + 1, colVal + 2},
                 {rowVal + 1, colVal - 2},
@@ -246,7 +259,11 @@ public class ChessPiece {
         }
     }
 
-    private void queenBishopMoves(ChessPiece piece, ChessBoard board, Collection<ChessMove> possibleMoves, int rowVal, int colVal, ChessGame.TeamColor color){
+    private void queenBishopMoves(ChessBoard board,
+                                  Collection<ChessMove> possibleMoves,
+                                  int rowVal,
+                                  int colVal,
+                                  ChessGame.TeamColor color){
         int i = rowVal;
         int j = colVal;
         while (i < 8 && j < 8) { //++
@@ -305,7 +322,11 @@ public class ChessPiece {
         }
     }
 
-    private void queenRookMoves(ChessPiece piece, ChessBoard board, Collection<ChessMove> possibleMoves, int rowVal, int colVal, ChessGame.TeamColor color){
+    private void queenRookMoves(ChessBoard board,
+                                Collection<ChessMove> possibleMoves,
+                                int rowVal,
+                                int colVal,
+                                ChessGame.TeamColor color){
         int i = rowVal;
         int j = colVal;
         while (i < 8) { // +0
