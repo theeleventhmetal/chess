@@ -12,7 +12,7 @@ public class GameService {
 
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
-    private static final AtomicInteger idCounter = new AtomicInteger(1);
+    private static final AtomicInteger ID_COUNTER = new AtomicInteger(1);
 
     public GameService(GameDAO gameDAO, AuthDAO authDAO){
         this.gameDAO = gameDAO;
@@ -39,7 +39,7 @@ public class GameService {
             throw new BadRequestException("Error: bad request");
         }
 
-        int gameID = idCounter.getAndIncrement();
+        int gameID = ID_COUNTER.getAndIncrement();
         ChessGame game = new ChessGame();
 
         GameData gameData = new GameData(gameID, null, null, gameName, game);
