@@ -81,43 +81,35 @@ public class ChessPiece {
                     if (board.getPiece(new ChessPosition(rowVal + 1, colVal)) == null) {
                         possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal), null));
                         if ((rowVal == 2) && board.getPiece(new ChessPosition(rowVal + 2, colVal)) == null) {
-                            possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 2, colVal), null));
+                            addMove(possibleMoves, rowVal, colVal, 2, 0, false);
                         }
                     }
                     if ((colVal < 8) &&
                             board.getPiece(new ChessPosition(rowVal + 1, colVal + 1)) != null &&
                             board.getPiece(new ChessPosition(rowVal + 1, colVal + 1)).getTeamColor() == black) {
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal + 1), null));
-                    }
-                    if ((colVal > 1) &&
-                            board.getPiece(new ChessPosition(rowVal + 1, colVal - 1)) != null &&
-                            board.getPiece(new ChessPosition(rowVal + 1, colVal - 1)).getTeamColor() == black) {
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal - 1), null));
-                    }
-                }
-                if (rowVal == 7) {
-                    if (board.getPiece(new ChessPosition(rowVal + 1, colVal)) == null) {
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal), PieceType.QUEEN));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal), PieceType.ROOK));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal), PieceType.KNIGHT));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal), PieceType.BISHOP));
-                    }
-                    if ((colVal < 8) &&
-                            board.getPiece(new ChessPosition(rowVal + 1, colVal + 1)) != null &&
-                            board.getPiece(new ChessPosition(rowVal + 1, colVal + 1)).getTeamColor() == black) {
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal+1), PieceType.QUEEN));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal + 1), PieceType.ROOK));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal + 1), PieceType.KNIGHT));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal + 1), PieceType.BISHOP));
+                        addMove(possibleMoves, rowVal, colVal, 1, 1, false);
 
                     }
                     if ((colVal > 1) &&
                             board.getPiece(new ChessPosition(rowVal + 1, colVal - 1)) != null &&
                             board.getPiece(new ChessPosition(rowVal + 1, colVal - 1)).getTeamColor() == black) {
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal - 1), PieceType.QUEEN));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal - 1), PieceType.ROOK));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal - 1), PieceType.KNIGHT));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + 1, colVal - 1), PieceType.BISHOP));
+                        addMove(possibleMoves, rowVal, colVal, 1, -1, false);
+                    }
+                }
+                if (rowVal == 7) {
+                    if (board.getPiece(new ChessPosition(rowVal + 1, colVal)) == null) {
+                        addMove(possibleMoves, rowVal, colVal, 1, 0, true);
+                    }
+                    if ((colVal < 8) &&
+                            board.getPiece(new ChessPosition(rowVal + 1, colVal + 1)) != null &&
+                            board.getPiece(new ChessPosition(rowVal + 1, colVal + 1)).getTeamColor() == black) {
+                        addMove(possibleMoves, rowVal, colVal, 1, 1, true);
+
+                    }
+                    if ((colVal > 1) &&
+                            board.getPiece(new ChessPosition(rowVal + 1, colVal - 1)) != null &&
+                            board.getPiece(new ChessPosition(rowVal + 1, colVal - 1)).getTeamColor() == black) {
+                        addMove(possibleMoves, rowVal, colVal, 1, -1, true);
                     }
                 }
             } else { // BLACK MOVES DOWN
@@ -125,43 +117,34 @@ public class ChessPiece {
                     if (board.getPiece(new ChessPosition(rowVal - 1, colVal)) == null) {
                         possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 1, colVal), null));
                         if ((rowVal == 7) && board.getPiece(new ChessPosition(rowVal - 2, colVal)) == null) {
-                            possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 2, colVal), null));
+                            addMove(possibleMoves, rowVal, colVal, -2, 0, false);
                         }
                     }
                     if ((colVal < 8) &&
                             board.getPiece(new ChessPosition(rowVal - 1, colVal + 1)) != null &&
                             board.getPiece(new ChessPosition(rowVal - 1, colVal + 1)).getTeamColor() == white) {
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 1, colVal + 1), null));
+                        addMove(possibleMoves, rowVal, colVal, -1, 1, false);
                     }
                     if ((colVal > 1) &&
                             board.getPiece(new ChessPosition(rowVal - 1, colVal - 1)) != null &&
                             board.getPiece(new ChessPosition(rowVal - 1, colVal - 1)).getTeamColor() == white) {
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 1, colVal - 1), null));
+                        addMove(possibleMoves, rowVal, colVal, -1, -1, false);
                     }
                 }
                 if (rowVal == 2) {
                     if (board.getPiece(new ChessPosition(rowVal - 1, colVal)) == null) {
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 1, colVal), PieceType.QUEEN));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 1, colVal), PieceType.ROOK));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 1, colVal), PieceType.KNIGHT));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 1, colVal), PieceType.BISHOP));
+                        addMove(possibleMoves, rowVal, colVal, -1, 0, true);
                     }
                     if ((colVal < 8) &&
                             board.getPiece(new ChessPosition(rowVal - 1, colVal + 1)) != null &&
                             board.getPiece(new ChessPosition(rowVal - 1, colVal + 1)).getTeamColor() == white) {
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 1, colVal + 1), PieceType.QUEEN));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 1, colVal + 1), PieceType.ROOK));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 1, colVal + 1), PieceType.KNIGHT));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 1, colVal + 1), PieceType.BISHOP));
+                        addMove(possibleMoves, rowVal, colVal, -1, +1, true);
 
                     }
                     if ((colVal > 1) &&
                             board.getPiece(new ChessPosition(rowVal - 1, colVal - 1)) != null &&
                             board.getPiece(new ChessPosition(rowVal - 1, colVal - 1)).getTeamColor() == white) {
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 1, colVal - 1), PieceType.QUEEN));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 1, colVal - 1), PieceType.ROOK));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 1, colVal - 1), PieceType.KNIGHT));
-                        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal - 1, colVal - 1), PieceType.BISHOP));
+                        addMove(possibleMoves, rowVal, colVal, -1, -1, true);
                     }
                 }
 
@@ -335,7 +318,16 @@ public class ChessPiece {
         return possibleMoves;
     }
 
-    private void addMove(Collection<ChessMove> possibleMoves, int rowVal, int colVal, int rowOffset, int colOffset, PieceType promotionPiece){
-        possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset), promotionPiece));
+    private void addMove(Collection<ChessMove> possibleMoves, int rowVal, int colVal, int rowOffset, int colOffset, boolean promotionPiece){
+
+        if (!promotionPiece){
+            possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset), null));
+        }
+        else{
+            possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset), PieceType.QUEEN));
+            possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset), PieceType.KNIGHT));
+            possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset), PieceType.ROOK));
+            possibleMoves.add(new ChessMove(new ChessPosition(rowVal, colVal), new ChessPosition(rowVal + rowOffset, colVal + colOffset), PieceType.BISHOP));
+        }
     }
 }
