@@ -3,6 +3,7 @@ package service;
 import chess.ChessGame;
 import dataaccess.*;
 import model.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -11,6 +12,7 @@ public class GameService {
 
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
+    private static final AtomicInteger idCounter = new AtomicInteger(1);
 
     public GameService(GameDAO gameDAO, AuthDAO authDAO){
         this.gameDAO = gameDAO;
@@ -37,7 +39,7 @@ public class GameService {
             throw new BadRequestException("Error: bad request");
         }
 
-        int gameID = UUID.randomUUID().variant();
+        int gameID = idCounter.getAndIncrement();
         ChessGame game = new ChessGame();
 
         GameData gameData = new GameData(gameID, null, null, gameName, game);
