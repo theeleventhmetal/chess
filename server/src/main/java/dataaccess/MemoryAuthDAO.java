@@ -3,7 +3,9 @@ package dataaccess;
 import model.AuthData;
 import model.UserData;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 public class MemoryAuthDAO implements AuthDAO{
 
@@ -26,5 +28,10 @@ public class MemoryAuthDAO implements AuthDAO{
     @Override
     public void clear() throws DataAccessException {
         auth.clear();
+    }
+
+    @Override
+    public Collection<AuthData> getAllAuths() throws DataAccessException {
+        return auth.values();
     }
 }

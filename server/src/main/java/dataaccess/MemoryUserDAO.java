@@ -2,7 +2,9 @@ package dataaccess;
 
 import model.UserData;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 public class MemoryUserDAO implements UserDAO {
 
@@ -20,5 +22,10 @@ public class MemoryUserDAO implements UserDAO {
     @Override
     public void clear() throws DataAccessException {
         users.clear();
+    }
+
+    @Override
+    public Collection<UserData> getAllUsers() throws DataAccessException {
+        return users.values();
     }
 }
