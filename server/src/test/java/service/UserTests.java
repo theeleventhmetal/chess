@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class userTests {
+public class UserTests {
 
     UserDAO userDAO = new MemoryUserDAO();
     AuthDAO authDAO = new MemoryAuthDAO();
