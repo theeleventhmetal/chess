@@ -23,9 +23,9 @@ public class MySQLUserDAO implements UserDAO{
     }
 
     @Override
-    public UserData getUser(String username) throws DataAccessException, SQLException {
+    public UserData getUser(String username) throws DataAccessException {
         try(Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT password, email FROM users WHERE username=?";
+            var statement = "SELECT username, password, email FROM users WHERE username=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setString(1, username);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -50,7 +50,7 @@ public class MySQLUserDAO implements UserDAO{
     public Collection<UserData> getAllUsers() throws DataAccessException {
         Collection<UserData> result = new ArrayList<>();
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT password, email FROM pet";
+            var statement = "SELECT username, password, email FROM users";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {

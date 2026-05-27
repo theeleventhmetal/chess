@@ -36,7 +36,8 @@ public class MySQLGameDAO implements GameDAO{
 
     @Override
     public void clear() throws DataAccessException {
-
+        var statement = "TRUNCATE games";
+        executeUpdate(statement);
     }
 
     private int executeUpdate(String statement, Object... params) throws DataAccessException {

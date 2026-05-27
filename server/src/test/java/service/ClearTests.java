@@ -6,6 +6,8 @@ import model.RegisterRequest;
 import model.RegisterResult;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ClearTests {
@@ -19,7 +21,7 @@ public class ClearTests {
     GameService gameService = new GameService(gameDAO, authDAO);
 
     @Test
-    public void clearTest() throws DataAccessException{
+    public void clearTest() throws DataAccessException, SQLException {
         authDAO.clear();
         gameDAO.clear();
         userDAO.clear();

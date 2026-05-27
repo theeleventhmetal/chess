@@ -4,6 +4,7 @@ import model.*;
 import org.junit.jupiter.api.*;
 
 
+import java.sql.SQLException;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,7 +23,7 @@ public class UserTests {
 
 
     @Test
-    public void successfulRegister() throws  DataAccessException{
+    public void successfulRegister() throws DataAccessException, SQLException {
         String testUser = "TESTUSER";
         String testPassword = "TESTPASSWORD";
         String testEmail = "TESTEMAIL@GMAIL";
@@ -48,7 +49,7 @@ public class UserTests {
     }
 
     @Test
-    public void successfulLogin() throws DataAccessException {
+    public void successfulLogin() throws DataAccessException, SQLException {
         String testUser = "TESTUSER";
         String testPassword = "TESTPASSWORD";
         String testEmail = "TESTEMAIL@GMAIL";
@@ -77,7 +78,7 @@ public class UserTests {
     }
 
     @Test
-    public void successfulLogout() throws DataAccessException{
+    public void successfulLogout() throws DataAccessException, SQLException {
         String testUser = "TESTUSER1";
         String testPassword = "TESTPASSWORD";
         String testEmail = "TESTEMAIL@GMAIL";

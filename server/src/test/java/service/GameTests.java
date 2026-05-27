@@ -4,6 +4,7 @@ import dataaccess.*;
 import model.*;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,7 +21,7 @@ public class GameTests {
     ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
 
     @Test
-    public void successfulListGames() throws DataAccessException{
+    public void successfulListGames() throws DataAccessException, SQLException {
         String testUser = "TESTUSER";
         String testPassword = "TESTPASSWORD";
         String testEmail = "TESTEMAIL@GMAIL";
@@ -49,7 +50,7 @@ public class GameTests {
     }
 
     @Test
-    public void successfulCreateGame() throws DataAccessException {
+    public void successfulCreateGame() throws DataAccessException, SQLException {
         authDAO.clear();
         gameDAO.clear();
         userDAO.clear();
@@ -72,7 +73,7 @@ public class GameTests {
     }
 
     @Test
-    public void unsuccessfulCreateGame() throws DataAccessException{
+    public void unsuccessfulCreateGame() throws DataAccessException, SQLException {
         authDAO.clear();
         gameDAO.clear();
         userDAO.clear();
@@ -92,7 +93,7 @@ public class GameTests {
     }
 
     @Test
-    public void successfulJoinGame() throws DataAccessException{
+    public void successfulJoinGame() throws DataAccessException, SQLException {
         authDAO.clear();
         gameDAO.clear();
         userDAO.clear();
@@ -122,7 +123,7 @@ public class GameTests {
     }
 
     @Test
-    public void unsuccessfulJoinGame() throws DataAccessException{
+    public void unsuccessfulJoinGame() throws DataAccessException, SQLException {
         authDAO.clear();
         gameDAO.clear();
         userDAO.clear();
