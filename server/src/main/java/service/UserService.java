@@ -2,6 +2,7 @@ package service;
 import dataaccess.*;
 import model.*;
 
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class UserService {
@@ -15,7 +16,7 @@ public class UserService {
     }
 
 
-    public RegisterResult register(RegisterRequest request) throws DataAccessException {
+    public RegisterResult register(RegisterRequest request) throws DataAccessException, SQLException {
         if (request.username() == null || request.password() == null || request.email() == null){
             throw new BadRequestException("Error: bad request");
         }
@@ -34,7 +35,7 @@ public class UserService {
         return new RegisterResult(request.username(), authToken);
     }
 
-    public LoginResult login(LoginRequest request) throws DataAccessException {
+    public LoginResult login(LoginRequest request) throws DataAccessException, SQLException {
         UserData user = userDAO.getUser(request.username());
 
         if (request.username() == null || request.password() == null){
