@@ -39,7 +39,8 @@ public class UserTests {
         assertEquals(userData, result);
     }
 
-    @Test void unsuccessfulCreateUser() throws DataAccessException {
+    @Test
+    void unsuccessfulCreateUser() throws DataAccessException {
         String testUser = "TESTUSER";
         String testPassword = "TESTPASSWORD";
         String testEmail = "TESTEMAIL@GMAIL";

@@ -1,30 +1,49 @@
 package dataaccess;
 
 import model.AuthData;
+import model.UserData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class MySQLAuthDAO implements AuthDAO{
+
+
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
+        try(Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT authToken, username FROM auth WHERE authToken=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readAuth(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException( String.format("Unable to read data: %s", e.getMessage()));
+        }
         return null;
     }
 
     @Override
     public void createAuth(AuthData a) throws DataAccessException {
-
+        var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
+        executeUpdate(statement, a.authToken(), a.username());
     }
 
     @Override
     public void removeAuth(String authToken) throws DataAccessException {
-
+        var statement = "DELETE FROM auth WHERE authToken=?";
+        executeUpdate(statement, authToken);
     }
 
     @Override
@@ -35,10 +54,29 @@ public class MySQLAuthDAO implements AuthDAO{
 
     @Override
     public Collection<AuthData> getAllAuths() throws DataAccessException {
-        return List.of();
+        Collection<AuthData> result = new ArrayList<>();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT authToken, username FROM auth";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        result.add(readAuth(rs));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return result;
     }
 
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
+    private AuthData readAuth(ResultSet rs) throws SQLException{
+        var authToken = rs.getString("authToken");
+        var username = rs.getString("username");
+        return new AuthData(authToken, username);
+    }
+
+    private void executeUpdate(String statement, Object... params) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < params.length; i++) {
@@ -46,12 +84,6 @@ public class MySQLAuthDAO implements AuthDAO{
                     if (param instanceof String p) ps.setString(i + 1, p);
                 }
                 ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-                return 0;
             }
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
