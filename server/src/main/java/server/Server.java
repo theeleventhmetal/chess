@@ -11,7 +11,10 @@ public class Server {
 
     private final Javalin javalin;
 
-    public Server() {
+    public Server() throws DataAccessException {
+
+        DatabaseManager.configureDatabase();
+
         UserDAO userDAO = new MemoryUserDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
         GameDAO gameDAO = new MemoryGameDAO();
