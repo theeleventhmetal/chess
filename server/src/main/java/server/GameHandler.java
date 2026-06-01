@@ -50,7 +50,7 @@ public class GameHandler {
 
             CreateGameRequest req = gson.fromJson(jsonBody, CreateGameRequest.class);
 
-            CreateGameResponse result = gameService.createGame(authToken, req);
+            CreateGameResult result = gameService.createGame(authToken, req);
 
             ctx.status(200);
             ctx.contentType("application/json");

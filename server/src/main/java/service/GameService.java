@@ -6,7 +6,6 @@ import model.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import java.util.Collection;
-import java.util.UUID;
 
 public class GameService {
 
@@ -29,7 +28,7 @@ public class GameService {
         return new ListGameResult(list);
     }
 
-    public CreateGameResponse createGame(String authToken, CreateGameRequest request) throws DataAccessException{
+    public CreateGameResult createGame(String authToken, CreateGameRequest request) throws DataAccessException{
         String gameName = request.gameName();
 
         if(authDAO.getAuth(authToken) == null){
@@ -46,7 +45,7 @@ public class GameService {
 
         gameDAO.createGame(gameData);
 
-        return new CreateGameResponse(gameID);
+        return new CreateGameResult(gameID);
     }
 
     public void joinGame(String authToken, JoinGameRequest request) throws DataAccessException {

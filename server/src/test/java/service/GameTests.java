@@ -67,7 +67,7 @@ public class GameTests {
         String gameName = "TESTGAMENAME";
         CreateGameRequest request = new CreateGameRequest(gameName);
 
-        CreateGameResponse result = gameService.createGame(registerResult.authToken(), request);
+        CreateGameResult result = gameService.createGame(registerResult.authToken(), request);
 
         assertNotEquals(0, result.gameID());
     }
@@ -108,7 +108,7 @@ public class GameTests {
 
         String gameName = "TESTGAMENAME";
         CreateGameRequest createGameRequest = new CreateGameRequest(gameName);
-        CreateGameResponse createGameResult = gameService.createGame(registerResult.authToken(), createGameRequest);
+        CreateGameResult createGameResult = gameService.createGame(registerResult.authToken(), createGameRequest);
 
         int gameID = createGameResult.gameID();
 
@@ -138,7 +138,7 @@ public class GameTests {
 
         String gameName = "TESTGAMENAME";
         CreateGameRequest createGameRequest = new CreateGameRequest(gameName);
-        CreateGameResponse createGameResult = gameService.createGame(registerResult.authToken(), createGameRequest);
+        CreateGameResult createGameResult = gameService.createGame(registerResult.authToken(), createGameRequest);
 
         int gameID = createGameResult.gameID();
 
