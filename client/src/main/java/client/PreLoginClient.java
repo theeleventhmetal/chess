@@ -39,6 +39,10 @@ public class PreLoginClient {
                 var msg = e.toString();
                 System.out.print(msg);
             }
+
+            if (state == State.SIGNEDIN){
+//                new PostLoginClient.run()
+            }
         }
     }
 
@@ -52,7 +56,7 @@ public class PreLoginClient {
     }
 
     private void printPrompt() {
-        System.out.print("\n"+ ">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n"+ SET_TEXT_COLOR_LIGHT_GREY + "[LOGGED OUT] >>> " + SET_TEXT_COLOR_GREEN);
     }
 
     public String eval(String input){
