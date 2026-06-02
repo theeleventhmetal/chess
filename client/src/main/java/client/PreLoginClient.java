@@ -14,9 +14,9 @@ import static ui.EscapeSequences.*;
 
 public class PreLoginClient {
 
-    private String clientName = null;
     private final ServerFacade server;
     private State state = State.SIGNEDOUT;
+    private String username;
 
 
     public PreLoginClient(String serverUrl) {
@@ -41,7 +41,7 @@ public class PreLoginClient {
             }
 
             if (state == State.SIGNEDIN){
-//                new PostLoginClient.run()
+                new PostLoginClient(server, state, username).run();
             }
         }
     }
@@ -77,7 +77,7 @@ public class PreLoginClient {
 
     public String register(String... params) throws DataAccessException {
         if (params.length >= 3){
-            String username = params[0];
+            username = params[0];
             String password = params[1];
             String email = params[2];
             RegisterRequest registerRequest = new RegisterRequest(username, password, email);
@@ -89,7 +89,7 @@ public class PreLoginClient {
             state = State.SIGNEDIN;
             return String.format("Successfully registered and logged in as %s!", username);
         }
-        throw new BadRequestException("Expected: register  <USERNAME> <PASSWORD> <EMAIL>");
+        throw new DataAccessException("Expected: register  <USERNAME> <PASSWORD> <EMAIL>");
     }
 
     public String login(String... params) throws DataAccessException{
@@ -97,10 +97,10 @@ public class PreLoginClient {
             String username = params[0];
             String password = params[1];
             LoginRequest loginRequest = new LoginRequest(username, password);
-            LoginResult loginResult = server.login(loginRequest);
+            server.login(loginRequest);
             state = State.SIGNEDIN;
             return String.format("Successfully logged in as %s", username);
         }
-        throw new BadRequestException("Expected: login <USERNAME> <PASSWORD>");
+        throw new DataAccessException("Expected: login <USERNAME> <PASSWORD>");
     }
 }
