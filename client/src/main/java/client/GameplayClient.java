@@ -22,24 +22,27 @@ public class GameplayClient {
             ChessPiece.PieceType.ROOK, "R",
             ChessPiece.PieceType.QUEEN, "Q",
             ChessPiece.PieceType.KNIGHT, "N");
+    private State state;
 
 
 
-    public GameplayClient(ServerFacade server, String color) {
+    public GameplayClient(ServerFacade server, String color, State state) {
         this.server = server;
         this.color = color;
+        this.state = state;
     }
 
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private final ChessGame game = new ChessGame(); //TEMPORARY CHESS GAME JUST FOR RENDERING
 
     public void run(){
-        if (color == "WHITE"){
+        if (color.equals("white")){
             drawWhiteView();
         }
-        else{
+        else if (color.equals("black")){
             drawBlackView();
         }
+        state = State.SIGNEDIN;
     }
 
     private void printPrompt() {

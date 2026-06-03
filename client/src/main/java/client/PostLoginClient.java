@@ -1,5 +1,6 @@
 package client;
 
+import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import model.*;
 import server.ServerFacade;
@@ -40,7 +41,7 @@ public class PostLoginClient {
                 System.out.print(msg);
             }
             if (state == State.GAMEPLAY){
-                new GameplayClient(server, color).run();
+                new GameplayClient(server, color, state).run();
             }
             else if (state == State.SIGNEDOUT){
                 return;
@@ -54,6 +55,7 @@ public class PostLoginClient {
 
     public String help(){
         return """
+                AVAILABLE COMMANDS:
                 create <NAME> - create a game
                 list - to list all games
                 join <ID> [WHITE|BLACK] - to join a game by ID as white or black
@@ -83,7 +85,13 @@ public class PostLoginClient {
                 default -> help();
             };
         } catch (Exception ex) {
-            return ex.getMessage();
+            try{
+                var error =  new Gson().fromJson(ex.getMessage(), ErrorResult.class);
+                return error.message();
+            } catch (com.google.gson.JsonSyntaxException e){
+                return ex.getMessage();
+            }
+
         }
     }
 
@@ -116,8 +124,8 @@ public class PostLoginClient {
                 int gameNumber = Integer.parseInt(params[0]);
                 GameData game = gameMap.get(gameNumber);
                 int gameID = game.gameID();
-                color = params[1];
-                if (!color.equals("WHITE") && !color.equals("BLACK")){
+                color = params[1].toLowerCase().trim();
+                if (!color.equals("white") && !color.equals("black")){
                     throw new DataAccessException("Color must be BLACK or WHITE");
                 }
                 JoinGameRequest request = new JoinGameRequest(color, gameID);

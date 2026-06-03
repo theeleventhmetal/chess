@@ -31,7 +31,6 @@ public class ServerFacade {
     public RegisterResult register(RegisterRequest regRequest) throws DataAccessException{
         var request = buildRequest("POST", "/user", regRequest);
         var response = sendRequest(request);
-        System.out.println(response.statusCode() + ": " + response.body());
         return handleResponse(response, RegisterResult.class);
     }
 

@@ -1,11 +1,9 @@
 package client;
 
+import com.google.gson.Gson;
 import dataaccess.BadRequestException;
 import dataaccess.DataAccessException;
-import model.LoginRequest;
-import model.LoginResult;
-import model.RegisterRequest;
-import model.RegisterResult;
+import model.*;
 import server.ServerFacade;
 
 import java.util.Arrays;
@@ -38,7 +36,7 @@ public class PreLoginClient {
             catch (Throwable e){
                 result = e.toString();
                 var msg = e.toString();
-                System.out.print(result);
+                System.out.print(msg);
             }
             if (state == State.SIGNEDIN){
                 new PostLoginClient(server, state, username).run();
@@ -48,6 +46,7 @@ public class PreLoginClient {
 
     private String help(){
        return """
+               AVAILABLE COMMANDS:
                register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                login <USERNAME> <PASSWORD> - to play chess
                quit - to exit
@@ -71,7 +70,12 @@ public class PreLoginClient {
                 default -> help();
             };
         } catch (Exception ex) {
-            return ex.getMessage();
+            try{
+                var error =  new Gson().fromJson(ex.getMessage(), ErrorResult.class);
+                return error.message();
+            } catch (com.google.gson.JsonSyntaxException e){
+                return ex.getMessage();
+            }
         }
     }
 
@@ -81,7 +85,7 @@ public class PreLoginClient {
             String password = params[1];
             String email = params[2];
             RegisterRequest registerRequest = new RegisterRequest(username, password, email);
-            RegisterResult registerResult = server.register(registerRequest);
+            server.register(registerRequest);
             LoginRequest loginRequest = new LoginRequest(username, password);
             LoginResult loginResult = server.login(loginRequest);
             String authToken = loginResult.authToken();
@@ -97,7 +101,10 @@ public class PreLoginClient {
             username = params[0];
             String password = params[1];
             LoginRequest loginRequest = new LoginRequest(username, password);
-            server.login(loginRequest);
+
+            LoginResult loginResult = server.login(loginRequest);
+            String authToken = loginResult.authToken();
+            server.setAuthToken(authToken);
             state = State.SIGNEDIN;
             return String.format("Successfully logged in as %s", username);
         }
