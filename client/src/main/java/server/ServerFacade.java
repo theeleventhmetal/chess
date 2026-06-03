@@ -42,7 +42,6 @@ public class ServerFacade {
 
     public void logout() throws ClientException {
         var request = buildRequest("DELETE", "/session", null);
-        System.out.println("DEBUG logout request: " + request.uri() + " " + request.method());
         handleResponse(sendRequest(request), null);
     }
 

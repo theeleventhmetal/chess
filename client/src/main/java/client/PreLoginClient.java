@@ -1,6 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
+import dataaccess.UnauthorizedException;
 import model.*;
 import server.ClientException;
 import server.ServerFacade;
@@ -15,6 +16,7 @@ public class PreLoginClient {
     private final ServerFacade server;
     private State state = State.SIGNEDOUT;
     private String username;
+    private String authToken;
 
 
     public PreLoginClient(String serverUrl) {
@@ -38,7 +40,7 @@ public class PreLoginClient {
                 System.out.print(msg);
             }
             if (state == State.SIGNEDIN){
-                new PostLoginClient(server, state, username).run();
+                new PostLoginClient(server, state, username, authToken).run();
             }
         }
     }
@@ -72,41 +74,56 @@ public class PreLoginClient {
             try{
                 var error =  new Gson().fromJson(ex.getMessage(), ErrorResult.class);
                 return error.message();
-            } catch (com.google.gson.JsonSyntaxException exc){
-                return exc.getMessage();
+            } catch (Exception exc){
+                return ex.getMessage();
             }
         }
     }
 
     public String register(String... params) throws ClientException {
         if (params.length >= 3){
-            username = params[0];
-            String password = params[1];
-            String email = params[2];
-            RegisterRequest registerRequest = new RegisterRequest(username, password, email);
-            server.register(registerRequest);
-            LoginRequest loginRequest = new LoginRequest(username, password);
-            LoginResult loginResult = server.login(loginRequest);
-            String authToken = loginResult.authToken();
-            server.setAuthToken(authToken);
-            state = State.SIGNEDIN;
-            return String.format("Successfully registered and logged in as: %s", username);
+            try{
+                username = params[0];
+                String password = params[1];
+                String email = params[2];
+                RegisterRequest registerRequest = new RegisterRequest(username, password, email);
+                System.out.println("Registering...");
+                server.register(registerRequest);
+                System.out.println("Logging in...");
+                LoginRequest loginRequest = new LoginRequest(username, password);
+                LoginResult loginResult = server.login(loginRequest);
+                String authToken = loginResult.authToken();
+                server.setAuthToken(authToken);
+                state = State.SIGNEDIN;
+                return String.format("Successfully registered and logged in as: %s", username);
+            }catch (Exception e){
+                username = null;
+                state = State.SIGNEDOUT;
+                throw new ClientException("Username already taken");
+            }
         }
+        state = State.SIGNEDOUT;
         throw new ClientException("Expected: register  <USERNAME> <PASSWORD> <EMAIL>");
     }
 
     public String login(String... params) throws ClientException {
         if (params.length >= 2){
-            username = params[0];
-            String password = params[1];
-            LoginRequest loginRequest = new LoginRequest(username, password);
-
-            LoginResult loginResult = server.login(loginRequest);
-            String authToken = loginResult.authToken();
-            server.setAuthToken(authToken);
-            state = State.SIGNEDIN;
-            return String.format("Successfully logged in as: %s", username);
+            try{
+                username = params[0];
+                String password = params[1];
+                LoginRequest loginRequest = new LoginRequest(username, password);
+                LoginResult loginResult = server.login(loginRequest);
+                authToken = loginResult.authToken();
+                server.setAuthToken(authToken);
+                state = State.SIGNEDIN;
+                return String.format("Successfully logged in as: %s", username);
+            } catch (Exception e){
+                username = null;
+                state = State.SIGNEDOUT;
+                throw new ClientException("Unauthorized");
+            }
         }
+        state = State.SIGNEDOUT;
         throw new ClientException("Expected: login <USERNAME> <PASSWORD>");
     }
 }

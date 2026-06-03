@@ -84,6 +84,7 @@ public class GameplayClient {
         boolean leadingWhite = true;
         for (int boardRowInt = BOARD_SIZE_IN_SQUARES; boardRowInt > 0; boardRowInt--){
             boardHelper(out, leadingWhite, boardRowInt);
+            leadingWhite = !leadingWhite;
         }
     }
 
@@ -101,6 +102,7 @@ public class GameplayClient {
         boolean leadingWhite = true;
         for (int boardRowInt = 1; boardRowInt <= BOARD_SIZE_IN_SQUARES; boardRowInt++){
             boardHelper(out, leadingWhite, boardRowInt);
+            leadingWhite = !leadingWhite;
         }
     }
 
@@ -121,7 +123,6 @@ public class GameplayClient {
         out.print(EMPTY);
         out.print(RESET_BG_COLOR);
         out.print("\n");
-        leadingWhite = !leadingWhite;
     }
 
     private void drawRow(PrintStream out, boolean leadingWhite, int row){

@@ -1,6 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
+import dataaccess.AlreadyTakenException;
 import server.ClientException;
 import model.*;
 import server.ServerFacade;
@@ -13,12 +14,14 @@ public class PostLoginClient {
     private final ServerFacade server;
     private State state;
     private final String userName;
+    private final String authToken;
     private String color;
 
-    public PostLoginClient(ServerFacade server, State state, String clientName) {
+    public PostLoginClient(ServerFacade server, State state, String clientName, String authToken) {
         this.server = server;
         this.state = state;
         this.userName = clientName;
+        this.authToken = authToken;
     }
 
     Map<Integer, GameData> gameMap = new HashMap<>();
@@ -112,11 +115,16 @@ public class PostLoginClient {
         StringBuilder gameList = new StringBuilder();
         int i = 1;
         gameMap.clear();
-        for (GameData game: games){
-            gameMap.put(i, game);
-            gameList.append(i++).append(". ").append(game.gameName()).append("\n");
+        if (games.isEmpty()){
+            return "Game list is empty";
         }
-        return gameList.toString();
+        else{
+            for (GameData game: games){
+                gameMap.put(i, game);
+                gameList.append(i++).append(". ").append(game.gameName()).append("\n");
+            }
+            return gameList.toString();
+        }
     }
 
     private String join(String...params) throws ClientException{
@@ -125,20 +133,23 @@ public class PostLoginClient {
                 int gameNumber = Integer.parseInt(params[0]);
                 GameData game = gameMap.get(gameNumber);
                 int gameID = game.gameID();
-                if (!gameMap.containsKey(gameID)){
+                if (!gameMap.containsKey(gameNumber)){
                     throw new ClientException("Game does not exist");
                 }
                 color = params[1].toLowerCase().trim();
                 if (!color.equals("white") && !color.equals("black")){
                     throw new ClientException("Color must be BLACK or WHITE");
                 }
-                JoinGameRequest request = new JoinGameRequest(color, gameID);
+                JoinGameRequest request = new JoinGameRequest(color.toUpperCase(), gameID);
                 server.joinGame(request);
                 state = State.GAMEPLAY;
-                return String.format("Successfully joined game with ID: %s", gameID);
+                return String.format("Successfully joined game number: %s", gameNumber);
+            }catch (NullPointerException e){
+                throw new ClientException("Game does not exist");
             }
-            catch (NumberFormatException e){
-                throw new ClientException("Invalid ID");
+            catch (Exception e){
+                state = State.SIGNEDIN;
+                throw new ClientException(e.getMessage());
             }
         }
         throw new ClientException("Expected: join <ID> [WHITE|BLACK]");
@@ -159,6 +170,7 @@ public class PostLoginClient {
             try {
                 int gameID = Integer.parseInt(params[0]);
                 GameData game = gameMap.get(gameID);
+                state = State.GAMEPLAY;
             }
             catch(Exception e){
                 throw new ClientException("Invalid ID");
