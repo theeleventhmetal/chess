@@ -95,7 +95,7 @@ public class GameplayClient {
     }
 
     private void drawRow(PrintStream out, boolean leadingWhite, int row){
-            boolean blackSquare = false;
+            boolean blackSquare = !leadingWhite;
             for(int i = 1; i <= 8; i++){
                 if (blackSquare){
                     setBlack(out);
