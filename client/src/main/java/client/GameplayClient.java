@@ -34,8 +34,8 @@ public class GameplayClient {
 
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private final ChessGame game = new ChessGame(); //TEMPORARY CHESS GAME JUST FOR RENDERING
-    String[] WHITE_LETTERS = {"a", "b", "c", "d", "e", "f", "g", "h"};
-    String[] BLACK_LETTERS = {"h", "g","f", "e", "d", "c", "b", "a"};
+    String[] whiteLetters = {"a", "b", "c", "d", "e", "f", "g", "h"};
+    String[] blackLetters = {"h", "g","f", "e", "d", "c", "b", "a"};
 
     public void run(){
         if (color.equals("white")){
@@ -55,10 +55,10 @@ public class GameplayClient {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print("\n\n");
         out.print(ERASE_SCREEN);
-        drawBorder(out, WHITE_LETTERS);
+        drawBorder(out, whiteLetters);
         out.print("\n");
         drawWhiteBoard(out);
-        drawBorder(out, WHITE_LETTERS);
+        drawBorder(out, whiteLetters);
     }
 
     private void drawBorder(PrintStream out, String[] letters){
@@ -91,10 +91,10 @@ public class GameplayClient {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print("\n\n");
         out.print(ERASE_SCREEN);
-        drawBorder(out, BLACK_LETTERS);
+        drawBorder(out, blackLetters);
         out.print("\n");
         drawBlackBoard(out);
-        drawBorder(out, BLACK_LETTERS);
+        drawBorder(out, blackLetters);
     }
 
     private void drawBlackBoard(PrintStream out){

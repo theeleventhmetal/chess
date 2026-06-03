@@ -72,8 +72,8 @@ public class PreLoginClient {
             try{
                 var error =  new Gson().fromJson(ex.getMessage(), ErrorResult.class);
                 return error.message();
-            } catch (com.google.gson.JsonSyntaxException e){
-                return ex.getMessage();
+            } catch (com.google.gson.JsonSyntaxException exc){
+                return exc.getMessage();
             }
         }
     }
