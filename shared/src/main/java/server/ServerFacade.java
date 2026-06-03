@@ -24,41 +24,43 @@ public class ServerFacade {
     }
 
     public void clear() throws DataAccessException{
-        var request = buildRequest("/DELETE", "/db", null);
+        var request = buildRequest("DELETE", "/db", null);
         sendRequest(request);
     }
 
     public RegisterResult register(RegisterRequest regRequest) throws DataAccessException{
-        var request = buildRequest("/POST", "/user", regRequest);
+        var request = buildRequest("POST", "/user", regRequest);
         var response = sendRequest(request);
+        System.out.println(response.statusCode() + ": " + response.body());
         return handleResponse(response, RegisterResult.class);
     }
 
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException{
-        var request = buildRequest("/POST", "/session", loginRequest);
+        var request = buildRequest("POST", "/session", loginRequest);
         var response = sendRequest(request);
         return handleResponse(response, LoginResult.class);
     }
 
     public void logout() throws DataAccessException{
-        var request = buildRequest("/DELETE", "/session", null);
+        var request = buildRequest("DELETE", "/session", null);
         sendRequest(request);
     }
 
     public ListGameResult listGames() throws DataAccessException{
-        var request = buildRequest("/GET", "/game", null);
+        var request = buildRequest("GET", "/game", null);
         var response = sendRequest(request);
         return handleResponse(response, ListGameResult.class);
     }
 
     public CreateGameResult createGame(CreateGameRequest createRequest) throws DataAccessException{
-        var request = buildRequest("/POST", "/game", createRequest);
+        var request = buildRequest("POST", "/game", createRequest);
         var response = sendRequest(request);
         return handleResponse(response, CreateGameResult.class);
     }
 
     public void joinGame(JoinGameRequest joinRequest) throws DataAccessException{
-        var request = buildRequest("/PUT", "/game", joinRequest);
+        System.out.println("DEBUG authToken: " + authToken);
+        var request = buildRequest("PUT", "/game", joinRequest);
         sendRequest(request);
     }
 

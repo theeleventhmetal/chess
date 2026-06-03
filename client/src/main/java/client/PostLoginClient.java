@@ -23,25 +23,29 @@ public class PostLoginClient {
     Map<Integer, GameData> gameMap = new HashMap<>();
 
     public void run(){
-        System.out.println ("Logged in as " + userName + "\n");
+        System.out.print("\n");
         System.out.print(help());
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")){
             printPrompt();
             String line = scanner.nextLine();
-
             try{
                 result = eval(line);
                 System.out.print(SET_TEXT_COLOR_BLUE + result);
             }
             catch (Throwable e){
+                result = e.toString();
                 var msg = e.toString();
                 System.out.print(msg);
             }
             if (state == State.GAMEPLAY){
-//                new GameplayClient.run();
+                new GameplayClient(server, color).run();
             }
+            else if (state == State.SIGNEDOUT){
+                return;
+            }
+
         }
 
     }
@@ -112,13 +116,13 @@ public class PostLoginClient {
                 int gameNumber = Integer.parseInt(params[0]);
                 GameData game = gameMap.get(gameNumber);
                 int gameID = game.gameID();
-                String color = params[1];
+                color = params[1];
                 JoinGameRequest request = new JoinGameRequest(color, gameID);
                 server.joinGame(request);
                 state = State.GAMEPLAY;
                 return String.format("Successfully joined game with ID: %s", gameID);
             }
-            catch (Exception e){
+            catch (NumberFormatException e){
                 throw new DataAccessException("Invalid ID");
             }
         }
@@ -128,6 +132,7 @@ public class PostLoginClient {
     private String logout(String...params) throws DataAccessException {
         try{
             server.logout();
+            state = State.SIGNEDOUT;
             return "Logged out successfully!";
         } catch (Exception e){
             throw new DataAccessException("Invalid Credentials");

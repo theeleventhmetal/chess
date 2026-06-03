@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import model.LoginRequest;
 import model.LoginResult;
 import model.RegisterRequest;
+import model.RegisterResult;
 import server.ServerFacade;
 
 import java.util.Arrays;
@@ -30,16 +31,15 @@ public class PreLoginClient {
         while (!result.equals("quit")){
             printPrompt();
             String line = scanner.nextLine();
-
             try{
                 result = eval(line);
                 System.out.print(SET_TEXT_COLOR_BLUE + result);
             }
             catch (Throwable e){
+                result = e.toString();
                 var msg = e.toString();
-                System.out.print(msg);
+                System.out.print(result);
             }
-
             if (state == State.SIGNEDIN){
                 new PostLoginClient(server, state, username).run();
             }
@@ -81,8 +81,8 @@ public class PreLoginClient {
             String password = params[1];
             String email = params[2];
             RegisterRequest registerRequest = new RegisterRequest(username, password, email);
+            RegisterResult registerResult = server.register(registerRequest);
             LoginRequest loginRequest = new LoginRequest(username, password);
-            server.register(registerRequest);
             LoginResult loginResult = server.login(loginRequest);
             String authToken = loginResult.authToken();
             server.setAuthToken(authToken);
@@ -94,7 +94,7 @@ public class PreLoginClient {
 
     public String login(String... params) throws DataAccessException{
         if (params.length >= 2){
-            String username = params[0];
+            username = params[0];
             String password = params[1];
             LoginRequest loginRequest = new LoginRequest(username, password);
             server.login(loginRequest);
