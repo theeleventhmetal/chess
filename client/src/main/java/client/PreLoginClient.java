@@ -1,9 +1,8 @@
 package client;
 
 import com.google.gson.Gson;
-import dataaccess.BadRequestException;
-import dataaccess.DataAccessException;
 import model.*;
+import server.ClientException;
 import server.ServerFacade;
 
 import java.util.Arrays;
@@ -79,7 +78,7 @@ public class PreLoginClient {
         }
     }
 
-    public String register(String... params) throws DataAccessException {
+    public String register(String... params) throws ClientException {
         if (params.length >= 3){
             username = params[0];
             String password = params[1];
@@ -93,10 +92,10 @@ public class PreLoginClient {
             state = State.SIGNEDIN;
             return String.format("Successfully registered and logged in as: %s", username);
         }
-        throw new DataAccessException("Expected: register  <USERNAME> <PASSWORD> <EMAIL>");
+        throw new ClientException("Expected: register  <USERNAME> <PASSWORD> <EMAIL>");
     }
 
-    public String login(String... params) throws DataAccessException{
+    public String login(String... params) throws ClientException {
         if (params.length >= 2){
             username = params[0];
             String password = params[1];
@@ -108,6 +107,6 @@ public class PreLoginClient {
             state = State.SIGNEDIN;
             return String.format("Successfully logged in as: %s", username);
         }
-        throw new DataAccessException("Expected: login <USERNAME> <PASSWORD>");
+        throw new ClientException("Expected: login <USERNAME> <PASSWORD>");
     }
 }

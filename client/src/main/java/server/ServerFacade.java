@@ -1,7 +1,6 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
 import model.*;
 
 import java.net.URI;
@@ -23,41 +22,41 @@ public class ServerFacade {
         this.authToken = authToken;
     }
 
-    public void clear() throws DataAccessException{
+    public void clear() throws ClientException {
         var request = buildRequest("DELETE", "/db", null);
         sendRequest(request);
     }
 
-    public RegisterResult register(RegisterRequest regRequest) throws DataAccessException{
+    public RegisterResult register(RegisterRequest regRequest) throws ClientException{
         var request = buildRequest("POST", "/user", regRequest);
         var response = sendRequest(request);
         return handleResponse(response, RegisterResult.class);
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws DataAccessException{
+    public LoginResult login(LoginRequest loginRequest) throws ClientException{
         var request = buildRequest("POST", "/session", loginRequest);
         var response = sendRequest(request);
         return handleResponse(response, LoginResult.class);
     }
 
-    public void logout() throws DataAccessException{
+    public void logout() throws ClientException{
         var request = buildRequest("DELETE", "/session", null);
         sendRequest(request);
     }
 
-    public ListGameResult listGames() throws DataAccessException{
+    public ListGameResult listGames() throws ClientException{
         var request = buildRequest("GET", "/game", null);
         var response = sendRequest(request);
         return handleResponse(response, ListGameResult.class);
     }
 
-    public CreateGameResult createGame(CreateGameRequest createRequest) throws DataAccessException{
+    public CreateGameResult createGame(CreateGameRequest createRequest) throws ClientException{
         var request = buildRequest("POST", "/game", createRequest);
         var response = sendRequest(request);
         return handleResponse(response, CreateGameResult.class);
     }
 
-    public void joinGame(JoinGameRequest joinRequest) throws DataAccessException{
+    public void joinGame(JoinGameRequest joinRequest) throws ClientException{
         var request = buildRequest("PUT", "/game", joinRequest);
         sendRequest(request);
     }
@@ -84,23 +83,23 @@ public class ServerFacade {
         }
     }
 
-    private HttpResponse<String> sendRequest(HttpRequest request) throws DataAccessException {
+    private HttpResponse<String> sendRequest(HttpRequest request) throws ClientException {
         try {
             return client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new ClientException(ex.getMessage());
         }
     }
 
-    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws DataAccessException {
+    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws ClientException {
         var status = response.statusCode();
         if (!isSuccessful(status)) {
             var body = response.body();
             if (body != null) {
-                throw  new DataAccessException(body);
+                throw  new ClientException(body);
             }
 
-            throw new DataAccessException("other failure: " + status);
+            throw new ClientException("other failure: " + status);
         }
 
         if (responseClass != null) {

@@ -1,7 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
+import server.ClientException;
 import model.*;
 import server.ServerFacade;
 
@@ -96,17 +96,17 @@ public class PostLoginClient {
         }
     }
 
-    private String create(String...params) throws DataAccessException {
+    private String create(String...params) throws ClientException {
         if (params.length >= 1){
             String gameName = params[0];
             CreateGameRequest request = new CreateGameRequest(gameName);
             server.createGame(request);
             return String.format("Successfully created game: %s", gameName);
         }
-        throw new DataAccessException("Expected: create <NAME>");
+        throw new ClientException("Expected: create <NAME>");
     }
 
-    private String list(String...params) throws DataAccessException {
+    private String list(String...params) throws ClientException {
         ListGameResult result = server.listGames();
         Collection<GameData> games = result.games();
         StringBuilder gameList = new StringBuilder();
@@ -119,18 +119,18 @@ public class PostLoginClient {
         return gameList.toString();
     }
 
-    private String join(String...params) throws DataAccessException{
+    private String join(String...params) throws ClientException{
         if (params.length >= 2){
             try {
                 int gameNumber = Integer.parseInt(params[0]);
                 GameData game = gameMap.get(gameNumber);
                 int gameID = game.gameID();
                 if (!gameMap.containsKey(gameID)){
-                    throw new DataAccessException("Game does not exist");
+                    throw new ClientException("Game does not exist");
                 }
                 color = params[1].toLowerCase().trim();
                 if (!color.equals("white") && !color.equals("black")){
-                    throw new DataAccessException("Color must be BLACK or WHITE");
+                    throw new ClientException("Color must be BLACK or WHITE");
                 }
                 JoinGameRequest request = new JoinGameRequest(color, gameID);
                 server.joinGame(request);
@@ -138,32 +138,32 @@ public class PostLoginClient {
                 return String.format("Successfully joined game with ID: %s", gameID);
             }
             catch (NumberFormatException e){
-                throw new DataAccessException("Invalid ID");
+                throw new ClientException("Invalid ID");
             }
         }
-        throw new DataAccessException("Expected: join <ID> [WHITE|BLACK]");
+        throw new ClientException("Expected: join <ID> [WHITE|BLACK]");
     }
 
-    private String logout(String...params) throws DataAccessException {
+    private String logout(String...params) throws ClientException {
         try{
             server.logout();
             state = State.SIGNEDOUT;
             return "Logged out successfully!";
         } catch (Exception e){
-            throw new DataAccessException("Invalid Credentials");
+            throw new ClientException("Invalid Credentials");
         }
     }
 
-    private String observe(String...params) throws DataAccessException{
+    private String observe(String...params) throws ClientException{
         if (params.length >= 1){
             try {
                 int gameID = Integer.parseInt(params[0]);
                 GameData game = gameMap.get(gameID);
             }
             catch(Exception e){
-                throw new DataAccessException("Invalid ID");
+                throw new ClientException("Invalid ID");
             }
         }
-        throw new DataAccessException("observe <ID>");
+        throw new ClientException("observe <ID>");
     }
 }
