@@ -34,7 +34,12 @@ public class GameplayClient {
     private final ChessGame game = new ChessGame(); //TEMPORARY CHESS GAME JUST FOR RENDERING
 
     public void run(){
-        drawWhiteView();
+        if (color == "WHITE"){
+            drawWhiteView();
+        }
+        else{
+            drawBlackView();
+        }
     }
 
     private void printPrompt() {
@@ -74,6 +79,60 @@ public class GameplayClient {
     private void drawWhiteBoard(PrintStream out){
         boolean leadingWhite = true;
         for (int boardRowInt = BOARD_SIZE_IN_SQUARES; boardRowInt > 0; boardRowInt--){
+            setBlue(out);
+            out.print(EMPTY);
+            out.print(boardRowInt);
+            out.print(EMPTY);
+            if (leadingWhite){
+                setWhite(out);
+            }else{
+                setBlack(out);
+            }
+            drawRow(out, leadingWhite, boardRowInt);
+            setBlue(out);
+            out.print(EMPTY);
+            out.print(boardRowInt);
+            out.print(EMPTY);
+            out.print(RESET_BG_COLOR);
+            out.print("\n");
+            leadingWhite = !leadingWhite;
+        }
+    }
+
+    private void drawBlackView(){
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        out.print("\n\n");
+        out.print(ERASE_SCREEN);
+        drawBlackBorder(out);
+        out.print("\n");
+        drawBlackBoard(out);
+        drawBlackBorder(out);
+    }
+
+    private void drawBlackBorder(PrintStream out){
+        String[] letters = {"h", "g","f", "e", "d", "c", "b", "a"};
+        setBlue(out);
+        out.print(EMPTY);
+        out.print(EMPTY);
+        out.print(EMPTY);
+        for(int i = 1; i <= BOARD_SIZE_IN_SQUARES; i++){
+            out.print(EMPTY);
+            out.print(SET_TEXT_BOLD);
+            out.print(letters[i-1]);
+            out.print(EMPTY);
+        }
+        setBlue(out);
+        out.print(EMPTY);
+        out.print(EMPTY);
+        out.print(EMPTY);
+        out.print(RESET_BG_COLOR);
+        out.print(RESET_TEXT_COLOR);
+
+    }
+
+    private void drawBlackBoard(PrintStream out){
+        boolean leadingWhite = true;
+        for (int boardRowInt = 1; boardRowInt <= BOARD_SIZE_IN_SQUARES; boardRowInt++){
             setBlue(out);
             out.print(EMPTY);
             out.print(boardRowInt);

@@ -59,7 +59,6 @@ public class ServerFacade {
     }
 
     public void joinGame(JoinGameRequest joinRequest) throws DataAccessException{
-        System.out.println("DEBUG authToken: " + authToken);
         var request = buildRequest("PUT", "/game", joinRequest);
         sendRequest(request);
     }

@@ -117,6 +117,9 @@ public class PostLoginClient {
                 GameData game = gameMap.get(gameNumber);
                 int gameID = game.gameID();
                 color = params[1];
+                if (!color.equals("WHITE") && !color.equals("BLACK")){
+                    throw new DataAccessException("Color must be BLACK or WHITE");
+                }
                 JoinGameRequest request = new JoinGameRequest(color, gameID);
                 server.joinGame(request);
                 state = State.GAMEPLAY;
