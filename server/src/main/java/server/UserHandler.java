@@ -2,7 +2,6 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.AlreadyTakenException;
 import dataaccess.BadRequestException;
-import dataaccess.DataAccessException;
 import dataaccess.UnauthorizedException;
 import io.javalin.http.Context;
 import model.*;

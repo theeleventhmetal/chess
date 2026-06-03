@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import model.*;
 
 import java.net.URI;
@@ -39,9 +40,10 @@ public class ServerFacade {
         return handleResponse(response, LoginResult.class);
     }
 
-    public void logout() throws ClientException{
+    public void logout() throws ClientException {
         var request = buildRequest("DELETE", "/session", null);
-        sendRequest(request);
+        System.out.println("DEBUG logout request: " + request.uri() + " " + request.method());
+        handleResponse(sendRequest(request), null);
     }
 
     public ListGameResult listGames() throws ClientException{
@@ -58,7 +60,7 @@ public class ServerFacade {
 
     public void joinGame(JoinGameRequest joinRequest) throws ClientException{
         var request = buildRequest("PUT", "/game", joinRequest);
-        sendRequest(request);
+        handleResponse(sendRequest(request),null);
     }
 
 
@@ -100,6 +102,9 @@ public class ServerFacade {
             }
 
             throw new ClientException("other failure: " + status);
+        }
+        else if (isSuccessful(status) && response.body().contains("authToken")){
+            authToken = new Gson().fromJson(response.body(), JsonObject.class).get("authToken").getAsString();
         }
 
         if (responseClass != null) {

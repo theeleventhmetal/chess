@@ -61,6 +61,9 @@ public class UserService {
         if(authDAO.getAuth(authToken) == null){
             throw new UnauthorizedException("Error: unauthorized");
         }
+        else if(authToken == null){
+            throw new UnauthorizedException("Error: unauthorized");
+        }
 
         authDAO.removeAuth(authToken);
     }
