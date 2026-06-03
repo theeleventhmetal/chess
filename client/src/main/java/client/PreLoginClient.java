@@ -91,7 +91,7 @@ public class PreLoginClient {
             String authToken = loginResult.authToken();
             server.setAuthToken(authToken);
             state = State.SIGNEDIN;
-            return String.format("Successfully registered and logged in as %s!", username);
+            return String.format("Successfully registered and logged in as: %s", username);
         }
         throw new DataAccessException("Expected: register  <USERNAME> <PASSWORD> <EMAIL>");
     }
@@ -106,7 +106,7 @@ public class PreLoginClient {
             String authToken = loginResult.authToken();
             server.setAuthToken(authToken);
             state = State.SIGNEDIN;
-            return String.format("Successfully logged in as %s", username);
+            return String.format("Successfully logged in as: %s", username);
         }
         throw new DataAccessException("Expected: login <USERNAME> <PASSWORD>");
     }

@@ -55,6 +55,7 @@ public class PostLoginClient {
 
     public String help(){
         return """
+                \n
                 AVAILABLE COMMANDS:
                 create <NAME> - create a game
                 list - to list all games
@@ -124,6 +125,9 @@ public class PostLoginClient {
                 int gameNumber = Integer.parseInt(params[0]);
                 GameData game = gameMap.get(gameNumber);
                 int gameID = game.gameID();
+                if (!gameMap.containsKey(gameID)){
+                    throw new DataAccessException("Game does not exist");
+                }
                 color = params[1].toLowerCase().trim();
                 if (!color.equals("white") && !color.equals("black")){
                     throw new DataAccessException("Color must be BLACK or WHITE");
