@@ -83,9 +83,57 @@ public class GameplayClient {
     private void drawWhiteBoard(PrintStream out){
         boolean leadingWhite = true;
         for (int boardRowInt = BOARD_SIZE_IN_SQUARES; boardRowInt > 0; boardRowInt--){
-            boardHelper(out, leadingWhite, boardRowInt);
+            whiteBoardHelper(out, leadingWhite, boardRowInt);
             leadingWhite = !leadingWhite;
         }
+    }
+
+
+    private void whiteBoardHelper(PrintStream out, boolean leadingWhite, int boardRowInt){
+        setBlue(out);
+        out.print(EMPTY);
+        out.print(boardRowInt);
+        out.print(EMPTY);
+        if (leadingWhite){
+            setWhite(out);
+        }else{
+            setBlack(out);
+        }
+        drawWhiteRow(out, leadingWhite, boardRowInt);
+        setBlue(out);
+        out.print(EMPTY);
+        out.print(boardRowInt);
+        out.print(EMPTY);
+        out.print(RESET_BG_COLOR);
+        out.print("\n");
+    }
+
+    private void drawWhiteRow(PrintStream out, boolean leadingWhite, int row){
+            boolean blackSquare = !leadingWhite;
+            for(int i = 1; i <= 8; i++){
+                if (blackSquare){
+                    setBlack(out);
+                }else{
+                    setWhite(out);
+                }
+                out.print(EMPTY);
+                ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, i));
+                if (piece == null){
+                    out.print(EMPTY);
+                }else{
+                    ChessPiece.PieceType type = piece.getPieceType();
+                    ChessGame.TeamColor color = piece.getTeamColor();
+                    if (color == ChessGame.TeamColor.WHITE){
+                        out.print(SET_TEXT_COLOR_GREEN);
+                    }
+                    else if (color == ChessGame.TeamColor.BLACK){
+                        out.print(SET_TEXT_COLOR_RED);
+                    }
+                    out.print(PIECE_MAP.get(type));
+                }
+                out.print(EMPTY);
+                blackSquare = !blackSquare;
+            }
     }
 
     private void drawBlackView(){
@@ -101,12 +149,12 @@ public class GameplayClient {
     private void drawBlackBoard(PrintStream out){
         boolean leadingWhite = true;
         for (int boardRowInt = 1; boardRowInt <= BOARD_SIZE_IN_SQUARES; boardRowInt++){
-            boardHelper(out, leadingWhite, boardRowInt);
+            blackBoardHelper(out, leadingWhite, boardRowInt);
             leadingWhite = !leadingWhite;
         }
     }
 
-    private void boardHelper(PrintStream out, boolean leadingWhite, int boardRowInt){
+    private void blackBoardHelper(PrintStream out, boolean leadingWhite, int boardRowInt){
         setBlue(out);
         out.print(EMPTY);
         out.print(boardRowInt);
@@ -116,7 +164,7 @@ public class GameplayClient {
         }else{
             setBlack(out);
         }
-        drawRow(out, leadingWhite, boardRowInt);
+        drawBlackRow(out, leadingWhite, boardRowInt);
         setBlue(out);
         out.print(EMPTY);
         out.print(boardRowInt);
@@ -125,33 +173,32 @@ public class GameplayClient {
         out.print("\n");
     }
 
-    private void drawRow(PrintStream out, boolean leadingWhite, int row){
-            boolean blackSquare = !leadingWhite;
-            for(int i = 1; i <= 8; i++){
-                if (blackSquare){
-                    setBlack(out);
-                }else{
-                    setWhite(out);
-                }
-                out.print(EMPTY);
-                ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, i));
-                if (piece == null){
-                    out.print(EMPTY);
-                }else{
-                    ChessPiece.PieceType type = piece.getPieceType();
-                    ChessGame.TeamColor color = piece.getTeamColor();
-//                    String pieceInsert = color.toString() + "_" + type.toString();
-                    if (color == ChessGame.TeamColor.WHITE){
-                        out.print(SET_TEXT_COLOR_GREEN);
-                    }
-                    else if (color == ChessGame.TeamColor.BLACK){
-                        out.print(SET_TEXT_COLOR_RED);
-                    }
-                    out.print(PIECE_MAP.get(type));
-                }
-                out.print(EMPTY);
-                blackSquare = !blackSquare;
+    private void drawBlackRow(PrintStream out, boolean leadingWhite, int row){
+        boolean blackSquare = !leadingWhite;
+        for (int i = 8; i >= 1; i--){
+            if (blackSquare){
+                setBlack(out);
+            }else{
+                setWhite(out);
             }
+            out.print(EMPTY);
+            ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, i));
+            if (piece == null){
+                out.print(EMPTY);
+            }else{
+                ChessPiece.PieceType type = piece.getPieceType();
+                ChessGame.TeamColor color = piece.getTeamColor();
+                if (color == ChessGame.TeamColor.WHITE){
+                    out.print(SET_TEXT_COLOR_GREEN);
+                }
+                else if (color == ChessGame.TeamColor.BLACK){
+                    out.print(SET_TEXT_COLOR_RED);
+                }
+                out.print(PIECE_MAP.get(type));
+            }
+            out.print(EMPTY);
+            blackSquare = !blackSquare;
+        }
     }
 
 

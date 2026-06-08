@@ -24,7 +24,7 @@ public class PreLoginClient {
     }
 
     public void run(){
-        System.out.println("Welcome to chess! Type Help to get started.");
+        System.out.println("Welcome to chess! Type 'help' to get started.");
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")){
@@ -67,7 +67,7 @@ public class PreLoginClient {
             return switch (cmd) {
                 case "register" -> register(params);
                 case "login" -> login(params);
-                case "quit" -> "quit";
+                case "quit" -> quit();
                 default -> help();
             };
         } catch (Exception ex) {
@@ -78,6 +78,11 @@ public class PreLoginClient {
                 return ex.getMessage();
             }
         }
+    }
+
+    private String quit() {
+        System.exit(0);
+        return "exiting program";
     }
 
     public String register(String... params) throws ClientException {

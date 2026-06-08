@@ -85,7 +85,7 @@ public class PostLoginClient {
                 case "join" -> join(params);
                 case "observe" -> observe(params);
                 case "logout" -> logout();
-                case "quit" -> "quit";
+                case "quit" -> quit();
                 default -> help();
             };
         } catch (Exception ex) {
@@ -97,6 +97,11 @@ public class PostLoginClient {
             }
 
         }
+    }
+
+    private String quit() {
+        System.exit(0);
+        return "exiting program";
     }
 
     private String create(String...params) throws ClientException {
@@ -121,8 +126,19 @@ public class PostLoginClient {
         else{
             for (GameData game: games){
                 gameMap.put(i, game);
-                gameList.append(i++).append(". ").append(game.gameName()).append("\n");
+                String white = game.whiteUsername();
+                String black = game.blackUsername();
+                if (white == null){
+                    white = "open";
+                }
+                if (black == null){
+                    black = "open";
+                }
+                gameList.append(i++).append(". ").append(game.gameName()).append("\n")
+                        .append("White Username: ").append(white).append("\n")
+                        .append("Black Username: ").append(black).append("\n");
             }
+            state = State.SIGNEDIN;
             return gameList.toString();
         }
     }
@@ -143,8 +159,11 @@ public class PostLoginClient {
                 JoinGameRequest request = new JoinGameRequest(color.toUpperCase(), gameID);
                 server.joinGame(request);
                 state = State.GAMEPLAY;
-                return String.format("Successfully joined game number: %s", gameNumber);
-            }catch (NullPointerException e){
+                return String.format("Successfully joined game number %s", gameNumber);
+            }catch (NumberFormatException e){
+                throw new ClientException("Game must be selected by number");
+            }
+            catch (NullPointerException e){
                 throw new ClientException("Game does not exist");
             }
             catch (Exception e){
@@ -171,11 +190,12 @@ public class PostLoginClient {
                 int gameID = Integer.parseInt(params[0]);
                 GameData game = gameMap.get(gameID);
                 state = State.GAMEPLAY;
+                return "Observing" + game.gameName();
             }
             catch(Exception e){
                 throw new ClientException("Invalid ID");
             }
         }
-        throw new ClientException("observe <ID>");
+        throw new ClientException("invalid request");
     }
 }
