@@ -1,5 +1,7 @@
 package websocket;
 
+import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.websocket.WsCloseContext;
@@ -9,10 +11,13 @@ import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import model.AuthData;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
+import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.commands.ConnectCommand;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -79,9 +84,19 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }else{
             message = String.format("%s has joined the game as %s", username, color);
         }
+        GameData gameData = gameDAO.getGame(gameID);
+        ChessGame game = gameData.game();
         connections.add(gameID, session);
         var serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(gameID, session, serverMessage);
-        session.getRemote().sendString(new Gson().toJson(message));
+        var loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
+        session.getRemote().sendString(new Gson().toJson(loadGameMessage));
+    }
+
+    private void makeMove(String authToken, Integer gameID, UserGameCommand command, Session session) throws DataAccessException {
+        MoveCommand moveCommand = (MoveCommand) command;
+        GameData gameData = gameDAO.getGame(gameID);
+        ChessGame game = gameData.game();
+
     }
 }
