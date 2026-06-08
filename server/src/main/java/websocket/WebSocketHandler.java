@@ -8,6 +8,7 @@ import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
+import model.AuthData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import websocket.commands.UserGameCommand;
@@ -50,7 +51,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
-                case CONNECT -> connect(command.getAuthToken(), command.getGameID(), command, ctx.session);
+                case CONNECT -> connect(command.getAuthToken(), command.getGameID(), command, (Session) ctx.session);
                 case MAKE_MOVE -> makeMove();
                 case LEAVE -> leave();
                 case RESIGN -> resign();
@@ -62,15 +63,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void connect(String authToken, Integer gameID, UserGameCommand command, Session session) throws SQLException, DataAccessException, IOException {
         ConnectCommand connectCommand = (ConnectCommand) command;
-        String username = connectCommand.getUsername();
+        AuthData authData = authDAO.getAuth(authToken);
+        String username = authData.username();
         String color = connectCommand.getColor();
-        if (userDAO.getUser(username) == null || authDAO.getAuth(authToken) == null){
+        if (authDAO.getAuth(authToken) == null){
             throw new UnauthorizedException("Error: unauthorized");
         }
         if (gameDAO.getGame(gameID) == null){
             throw new BadRequestException("Error: game does not exist");
         }
-
         String message;
 
         if (color == null){
@@ -81,5 +82,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.add(gameID, session);
         var serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(gameID, session, serverMessage);
+        session.getRemote().sendString(new Gson().toJson(message));
     }
 }
