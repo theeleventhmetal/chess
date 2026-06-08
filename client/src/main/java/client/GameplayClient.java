@@ -3,17 +3,24 @@ package client;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import com.google.gson.Gson;
+import model.ErrorResult;
+import server.ClientException;
 import server.ServerFacade;
+import websocket.WebSocketFacade;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Scanner;
 
 import static java.lang.System.out;
 import static ui.EscapeSequences.*;
 
 public class GameplayClient {
     private ServerFacade server;
+    private final WebSocketFacade ws;
     private String color;
     private static final Map<ChessPiece.PieceType, String> PIECE_MAP= Map.of(
             ChessPiece.PieceType.BISHOP, "B",
@@ -26,8 +33,9 @@ public class GameplayClient {
 
 
 
-    public GameplayClient(ServerFacade server, String color, State state) {
+    public GameplayClient(ServerFacade server, WebSocketFacade ws, String color, State state) {
         this.server = server;
+        this.ws = ws;
         this.color = color;
         this.state = state;
     }
@@ -38,18 +46,92 @@ public class GameplayClient {
     String[] blackLetters = {"h", "g","f", "e", "d", "c", "b", "a"};
 
     public void run(){
+        System.out.print("\n");
+        System.out.print(help());
+        Scanner scanner = new Scanner(System.in);
+        var result = "";
+        while (!result.equals("quit")){
+            if (color.equals("white")){
+                drawWhiteView();
+            }
+            else if (color.equals("black")){
+                drawBlackView();
+            }
+            printPrompt();
+            String line = scanner.nextLine();
+            try{
+                result = eval(line);
+            } catch (Throwable e){
+                result = e.toString();
+                var msg = e.toString();
+                System.out.print(msg);
+            }
+            if (state == State.SIGNEDIN){
+                return;
+            }
+        }
+    }
+
+    private void printPrompt() {
+        out.print("\n"+ SET_TEXT_COLOR_LIGHT_GREY + "[GAMEPLAY] >>> " + SET_TEXT_COLOR_GREEN);
+    }
+
+    public String help(){
+        return """
+                \n
+                AVAILABLE COMMANDS:
+                redraw - to redraw chess board
+                leave - to leave the game
+                move - to make a move on your turn
+                resign - to forfeit the game
+                highlight - to highlight legal moves for a piece
+                quit - to exit
+                help
+                """;
+    }
+
+    public String eval(String input){
+        try{
+            String[] tokens = input.toLowerCase().split(" ");
+            String cmd = (tokens.length > 0) ? tokens[0] : "help";
+            return switch (cmd) {
+                case "redraw" -> redraw();
+                case "leave" -> leave();
+                case "move" -> move();
+                case "resign" -> resign();
+                case "highlight" -> highlight();
+                case "quit" -> quit();
+                default -> help();
+            };
+        } catch (Exception except){
+            try{
+                var error =  new Gson().fromJson(except.getMessage(), ErrorResult.class);
+                return error.message();
+            } catch (com.google.gson.JsonSyntaxException e){
+                return except.getMessage();
+            }
+        }
+    }
+
+    private String quit() {
+        System.exit(0);
+        return "exiting program";
+    }
+
+    private void redraw() throws ClientException{
         if (color.equals("white")){
             drawWhiteView();
         }
         else if (color.equals("black")){
             drawBlackView();
         }
-        state = State.SIGNEDIN;
     }
 
-    private void printPrompt() {
-        out.print("\n"+ SET_TEXT_COLOR_LIGHT_GREY + "[LOGGED IN] >>> " + SET_TEXT_COLOR_GREEN);
+    private void leave() throws ClientException{
+
     }
+
+
 
     private void drawWhiteView(){
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);

@@ -49,9 +49,7 @@ public class PostLoginClient {
             else if (state == State.SIGNEDOUT){
                 return;
             }
-
         }
-
     }
 
 
