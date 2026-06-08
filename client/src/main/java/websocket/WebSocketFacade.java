@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import websocket.commands.ConnectCommand;
+import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -43,9 +44,9 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void connect(String authToken, Integer gameID) throws ClientException{
+    public void connect(String authToken, Integer gameID, String username, String color) throws ClientException{
         try{
-            var command = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            var command = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, username, color);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException e) {
             throw new ClientException(e.getMessage());
@@ -54,11 +55,28 @@ public class WebSocketFacade extends Endpoint {
 
     public void makeMove(String authToken, Integer gameID, ChessMove move) throws ClientException{
         try{
-            var command = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            var command = new MoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException e) {
             throw new ClientException(e.getMessage());
         }
     }
 
+    public void leave(String authToken, Integer gameID) throws ClientException{
+        try{
+            var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException e) {
+            throw new ClientException(e.getMessage());
+        }
+    }
+
+    public void resign(String authToken, Integer gameID) throws ClientException{
+        try{
+            var command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException e) {
+            throw new ClientException(e.getMessage());
+        }
+    }
 }

@@ -131,6 +131,18 @@ public class GameplayClient {
 
     }
 
+    private void move() throws ClientException{
+
+    }
+
+    private void resign() throws ClientException{
+
+    }
+
+    private void highlight() throws ClientException{
+
+    }
+
 
 
     private void drawWhiteView(){

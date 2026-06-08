@@ -6,12 +6,15 @@ import io.javalin.json.JavalinGson;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
+import websocket.WebSocketHandler;
 
 public class Server {
 
     private final Javalin javalin;
 
     public Server()  {
+
+        final WebSocketHandler webSocketHandler;
 
         try {
             DatabaseManager.configureDatabase();
@@ -32,6 +35,8 @@ public class Server {
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
         ClearHandler clearHandler = new ClearHandler(clearService);
 
+        webSocketHandler = new WebSocketHandler(userDAO, authDAO, gameDAO);
+
         javalin = Javalin.create(config -> {
             config.staticFiles.add("web");
         });
@@ -44,6 +49,12 @@ public class Server {
         javalin.get("/game",gameHandler::listGames);
         javalin.post("/game", gameHandler::createGame);
         javalin.put("/game", gameHandler::joinGame);
+
+        javalin.ws("/ws", ws -> {
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
+        });
 
     }
 
