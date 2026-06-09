@@ -157,5 +157,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.broadcast(gameID, session, notifMessage);
     }
 
+    private void resign(String authToken, Integer gameID, UserGameCommand command, Session session){
+
+    }
+
 
 }

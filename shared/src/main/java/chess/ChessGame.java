@@ -16,10 +16,12 @@ public class ChessGame {
 
     ChessBoard board = new ChessBoard();
     TeamColor activeColor;
+    boolean isOver;
 
     public ChessGame() {
         this.board.resetBoard();
         this.activeColor = TeamColor.WHITE;
+        this.isOver = false;
     }
 
     /**
@@ -28,6 +30,8 @@ public class ChessGame {
     public TeamColor getTeamTurn() {
         return activeColor;
     }
+
+    public boolean gameIsOver(){return isOver;}
 
     /**
      * Sets which teams turn it is
