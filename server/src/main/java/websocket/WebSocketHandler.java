@@ -13,19 +13,14 @@ import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
-import websocket.commands.LeaveCommand;
-import websocket.commands.MoveCommand;
-import websocket.commands.UserGameCommand;
-import websocket.commands.ConnectCommand;
+import websocket.commands.*;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
+import javax.management.Notification;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Collection;
-
-import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
@@ -99,6 +94,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         GameData gameData = gameDAO.getGame(gameID);
         ChessGame game = gameData.game();
         ChessMove move = moveCommand.getMove();
+        String color = moveCommand.getColor();
 
         try{
             game.makeMove(move);
@@ -119,8 +115,25 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.broadcast(gameID, session, notifMessage); // send move notif to all other players
             connections.broadcast(gameID, null, loadMessage); //send loaded game to all sessions
 
+
+
+            if (("white".equals(color) && game.isInCheckmate(ChessGame.TeamColor.BLACK) ||
+                    ("black".equals(color) && game.isInCheckmate(ChessGame.TeamColor.WHITE)))) {
+                 var winMessage = String.format("%s has achieved checkmate! Game is over.", username);
+                game.endGame();
+                var finalGame = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+                gameDAO.updateGame(finalGame);
+                var notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, winMessage);
+                connections.broadcast(gameID, null, notificationMessage);
+            }
+
+
+
+
+
+
         }catch (InvalidMoveException e){
-            throw new DataAccessException("Error: Invalid move");
+            throw new DataAccessException(e.getMessage());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -157,8 +170,22 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.broadcast(gameID, session, notifMessage);
     }
 
-    private void resign(String authToken, Integer gameID, UserGameCommand command, Session session){
+    private void resign(String authToken, Integer gameID, UserGameCommand command, Session session) throws DataAccessException, IOException {
+        AuthData authData = authDAO.getAuth(authToken);
+        String username = authData.username();
 
+        GameData updatedGame;
+        GameData gameData = gameDAO.getGame(gameID);
+        ChessGame game = gameData.game();
+
+        game.endGame();
+        updatedGame = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+        gameDAO.updateGame(updatedGame);
+
+        var message = String.format("%s has resigned from the game", username);
+
+        var notifMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcast(gameID, session, notifMessage);
     }
 
 

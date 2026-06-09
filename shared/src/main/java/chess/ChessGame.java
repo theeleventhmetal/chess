@@ -32,6 +32,7 @@ public class ChessGame {
     }
 
     public boolean gameIsOver(){return isOver;}
+    public void endGame(){isOver = true;}
 
     /**
      * Sets which teams turn it is
@@ -111,6 +112,9 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if (isOver){
+            throw new InvalidMoveException("Error: game is over, no new moves permitted");
+        }
         ChessPosition startPosition = move.getStartPosition();
         ChessPiece piece = this.board.getPiece(startPosition);
         if (piece != null && piece.getTeamColor() == this.activeColor){
