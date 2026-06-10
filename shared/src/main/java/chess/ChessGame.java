@@ -136,11 +136,11 @@ public class ChessGame {
                 }
             }
             else {
-                throw new InvalidMoveException("Move is Invalid");
+                throw new InvalidMoveException("Error: Move is Invalid");
             }
         }
         else {
-            throw new InvalidMoveException("Move is Invalid");
+            throw new InvalidMoveException("Error: Move is Invalid");
         }
     }
 

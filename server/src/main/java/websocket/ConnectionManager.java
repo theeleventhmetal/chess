@@ -1,5 +1,6 @@
 package websocket;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
@@ -29,7 +30,7 @@ public class ConnectionManager {
         for (Session session : connections.get(gameID)) {
             if (session.isOpen()) {
                 if (!session.equals(excludeSession)) {
-                    session.getRemote().sendString(msg);
+                    session.getRemote().sendString(new Gson().toJson(message));
                 }
             }
         }

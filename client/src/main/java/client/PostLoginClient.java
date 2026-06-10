@@ -148,18 +148,17 @@ public class PostLoginClient {
             try {
                 int gameNumber = Integer.parseInt(params[0]);
                 GameData game = gameMap.get(gameNumber);
-                int gameID = game.gameID();
+                gameID = game.gameID();
                 if (!gameMap.containsKey(gameNumber)){
                     throw new ClientException("Game does not exist");
                 }
-                color = params[1].toLowerCase().trim();
+                this.color = params[1].toLowerCase().trim();
                 if (!color.equals("white") && !color.equals("black")){
                     throw new ClientException("Color must be BLACK or WHITE");
                 }
                 JoinGameRequest request = new JoinGameRequest(color.toUpperCase(), gameID);
                 server.joinGame(request);
                 state = State.GAMEPLAY;
-                gameID = game.gameID();
                 return String.format("Successfully joined game number %s", gameNumber);
             }catch (NumberFormatException e){
                 throw new ClientException("Game must be selected by number");
