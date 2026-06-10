@@ -171,7 +171,6 @@ public class GameplayClient implements ServerMessageHandler{
         out.print("\n"+ SET_TEXT_COLOR_LIGHT_GREY + "[INPUT MOVE] >>> " + SET_TEXT_COLOR_GREEN);
 
         Scanner scanner = new Scanner(System.in);
-        var result = "";
         String line = scanner.nextLine();
         String[] tokens = line.toLowerCase().split(" ");
         if (tokens.length != 2){
@@ -205,11 +204,25 @@ public class GameplayClient implements ServerMessageHandler{
 
         ws.makeMove(server.authToken, gameID, move, color);
 
-        return "move executed";
+        return "Move executed";
     }
 
-    private void resign() throws ClientException{
-
+    private String resign() throws ClientException{
+        out.print("\nAre you sure you would like to resign?\n"
+                + SET_TEXT_COLOR_LIGHT_GREY + "[y/n] >> "+ SET_TEXT_COLOR_GREEN);
+        Scanner scanner = new Scanner(System.in);
+        String line = scanner.nextLine();
+        String[] tokens = line.toLowerCase().split(" ");
+        if (tokens.length != 1){
+            throw new ClientException("Error: incorrect answer format");
+        }
+        if(tokens[0].equals("y")){
+            ws.resign(server.authToken, gameID);
+            return "Successfully resigned from game";
+        }
+        else{
+            return "Resignation cancelled";
+        }
     }
 
     private void highlight() throws ClientException{
