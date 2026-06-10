@@ -344,31 +344,7 @@ public class GameplayClient implements ServerMessageHandler{
     private void drawWhiteRow(PrintStream out, boolean leadingWhite, int row){
             boolean blackSquare = !leadingWhite;
             for(int i = 1; i <= 8; i++){
-                ChessPosition currentPos = new ChessPosition(row, i);
-                if (validMoves != null && validMoves.contains(currentPos)) {
-                    setHighlight(out);
-                } else if (blackSquare) {
-                    setBlack(out);
-                } else {
-                    setWhite(out);
-                }
-                out.print(EMPTY);
-                ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, i));
-                if (piece == null){
-                    out.print(EMPTY);
-                }else{
-                    ChessPiece.PieceType type = piece.getPieceType();
-                    ChessGame.TeamColor color = piece.getTeamColor();
-                    if (color == ChessGame.TeamColor.WHITE){
-                        out.print(SET_TEXT_COLOR_GREEN);
-                    }
-                    else if (color == ChessGame.TeamColor.BLACK){
-                        out.print(SET_TEXT_COLOR_RED);
-                    }
-                    out.print(PIECE_MAP.get(type));
-                }
-                out.print(EMPTY);
-                blackSquare = !blackSquare;
+                rowHelper(out, leadingWhite, row, i, blackSquare);
             }
     }
 
@@ -412,32 +388,36 @@ public class GameplayClient implements ServerMessageHandler{
     private void drawBlackRow(PrintStream out, boolean leadingWhite, int row){
         boolean blackSquare = !leadingWhite;
         for (int i = 8; i >= 1; i--){
-            ChessPosition currentPos = new ChessPosition(row, i);
-            if (validMoves != null && validMoves.contains(currentPos)) {
-                setHighlight(out);
-            } else if (blackSquare) {
-                setBlack(out);
-            } else {
-                setWhite(out);
-            }
-            out.print(EMPTY);
-            ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, i));
-            if (piece == null){
-                out.print(EMPTY);
-            }else{
-                ChessPiece.PieceType type = piece.getPieceType();
-                ChessGame.TeamColor color = piece.getTeamColor();
-                if (color == ChessGame.TeamColor.WHITE){
-                    out.print(SET_TEXT_COLOR_GREEN);
-                }
-                else if (color == ChessGame.TeamColor.BLACK){
-                    out.print(SET_TEXT_COLOR_RED);
-                }
-                out.print(PIECE_MAP.get(type));
-            }
-            out.print(EMPTY);
-            blackSquare = !blackSquare;
+            rowHelper(out, leadingWhite, row, i, blackSquare);
         }
+    }
+
+    void rowHelper(PrintStream out, boolean leadingWhite, int row, int i, boolean blackSquare){
+        ChessPosition currentPos = new ChessPosition(row, i);
+        if (validMoves != null && validMoves.contains(currentPos)) {
+            setHighlight(out);
+        } else if (blackSquare) {
+            setBlack(out);
+        } else {
+            setWhite(out);
+        }
+        out.print(EMPTY);
+        ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, i));
+        if (piece == null){
+            out.print(EMPTY);
+        }else{
+            ChessPiece.PieceType type = piece.getPieceType();
+            ChessGame.TeamColor color = piece.getTeamColor();
+            if (color == ChessGame.TeamColor.WHITE){
+                out.print(SET_TEXT_COLOR_GREEN);
+            }
+            else if (color == ChessGame.TeamColor.BLACK){
+                out.print(SET_TEXT_COLOR_RED);
+            }
+            out.print(PIECE_MAP.get(type));
+        }
+        out.print(EMPTY);
+        blackSquare = !blackSquare;
     }
 
 
