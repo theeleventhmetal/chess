@@ -279,7 +279,7 @@ public class GameplayClient implements ServerMessageHandler{
         else{
             drawWhiteView();
         }
-        return "Possible moves highlighted";
+        return "\nPossible moves highlighted";
     }
 
 

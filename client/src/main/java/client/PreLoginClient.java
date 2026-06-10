@@ -1,7 +1,6 @@
 package client;
 
 import com.google.gson.Gson;
-import dataaccess.UnauthorizedException;
 import model.*;
 import server.ClientException;
 import server.ServerFacade;
