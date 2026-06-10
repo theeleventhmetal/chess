@@ -17,10 +17,12 @@ public class PreLoginClient {
     private State state = State.SIGNEDOUT;
     private String username;
     private String authToken;
-
+    private String serverUrl;
 
     public PreLoginClient(String serverUrl) {
+
         server = new ServerFacade(serverUrl);
+        this.serverUrl = serverUrl;
     }
 
     public void run(){
@@ -40,7 +42,7 @@ public class PreLoginClient {
                 System.out.print(msg);
             }
             if (state == State.SIGNEDIN){
-                new PostLoginClient(server, state, username, authToken).run();
+                new PostLoginClient(server, state, username, authToken, serverUrl).run();
             }
         }
     }

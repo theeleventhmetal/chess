@@ -1,7 +1,6 @@
 package client;
 
 import com.google.gson.Gson;
-import dataaccess.AlreadyTakenException;
 import server.ClientException;
 import model.*;
 import server.ServerFacade;
@@ -16,17 +15,20 @@ public class PostLoginClient {
     private final String userName;
     private final String authToken;
     private String color;
+    private String serverUrl;
+    private int gameID;
 
-    public PostLoginClient(ServerFacade server, State state, String clientName, String authToken) {
+    public PostLoginClient(ServerFacade server, State state, String clientName, String authToken, String serverUrl) {
         this.server = server;
         this.state = state;
         this.userName = clientName;
         this.authToken = authToken;
+        this.serverUrl = serverUrl;
     }
 
     Map<Integer, GameData> gameMap = new HashMap<>();
 
-    public void run(){
+    public void run() throws ClientException {
         System.out.print("\n");
         System.out.print(help());
         Scanner scanner = new Scanner(System.in);
@@ -44,7 +46,7 @@ public class PostLoginClient {
                 System.out.print(msg);
             }
             if (state == State.GAMEPLAY){
-                new GameplayClient(server, color, state).run();
+                new GameplayClient(server, color, state, serverUrl, gameID).run();
             }
             else if (state == State.SIGNEDOUT){
                 return;
@@ -157,6 +159,7 @@ public class PostLoginClient {
                 JoinGameRequest request = new JoinGameRequest(color.toUpperCase(), gameID);
                 server.joinGame(request);
                 state = State.GAMEPLAY;
+                gameID = game.gameID();
                 return String.format("Successfully joined game number %s", gameNumber);
             }catch (NumberFormatException e){
                 throw new ClientException("Game must be selected by number");

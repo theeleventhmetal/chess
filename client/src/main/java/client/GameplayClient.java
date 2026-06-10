@@ -1,6 +1,7 @@
 package client;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
@@ -9,6 +10,8 @@ import server.ClientException;
 import server.ServerFacade;
 import websocket.ServerMessageHandler;
 import websocket.WebSocketFacade;
+import websocket.commands.MoveCommand;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -16,7 +19,6 @@ import websocket.messages.ServerMessage;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -24,8 +26,8 @@ import static java.lang.System.out;
 import static ui.EscapeSequences.*;
 
 public class GameplayClient implements ServerMessageHandler{
-    private ServerFacade server;
-    private String color;
+    private final ServerFacade server;
+    private final String color;
     private static final Map<ChessPiece.PieceType, String> PIECE_MAP= Map.of(
             ChessPiece.PieceType.BISHOP, "B",
             ChessPiece.PieceType.KING, "K",
@@ -34,14 +36,17 @@ public class GameplayClient implements ServerMessageHandler{
             ChessPiece.PieceType.QUEEN, "Q",
             ChessPiece.PieceType.KNIGHT, "N");
     private State state;
+    private WebSocketFacade ws;
+    private final int gameID;
 
 
 
-    public GameplayClient(ServerFacade server, WebSocketFacade ws, String color, State state) throws ClientException {
+    public GameplayClient(ServerFacade server, String color, State state, String serverUrl, int gameID) throws ClientException {
         this.server = server;
         this.color = color;
         this.state = state;
-        WebSocketFacade ws = new WebSocketFacade();
+        this.gameID = gameID;
+        WebSocketFacade ws = new WebSocketFacade(serverUrl,this);
     }
 
     private static final int BOARD_SIZE_IN_SQUARES = 8;
@@ -133,12 +138,74 @@ public class GameplayClient implements ServerMessageHandler{
     }
 
     private String leave() throws ClientException{
-
-
+        ws.leave(server.authToken, gameID);
+        state = State.SIGNEDIN;
+        return "Leaving game...";
     }
 
-    private void move() throws ClientException{
+    public String moveDialog(){
+        return """
+                \n
+                Input desired move formatted as:
+                move <FROM> <TO>
+                
+                example:
+                move a2 a4
+                """;
+    }
 
+    private String move() throws ClientException{
+        final Map<String, Integer> columns = Map.of(
+                "a", 1, "b", 2, "c", 3, "d", 4,
+                "e", 5, "f", 6, "g", 7, "h", 8
+        );
+
+        final Map<String, ChessPiece.PieceType> promotionPieces = Map.of(
+                "queen", ChessPiece.PieceType.QUEEN,
+                "bishop", ChessPiece.PieceType.BISHOP,
+                "knight", ChessPiece.PieceType.KNIGHT,
+                "rook", ChessPiece.PieceType.ROOK
+        );
+
+        out.print(moveDialog());
+        out.print("\n"+ SET_TEXT_COLOR_LIGHT_GREY + "[INPUT MOVE] >>> " + SET_TEXT_COLOR_GREEN);
+
+        Scanner scanner = new Scanner(System.in);
+        var result = "";
+        String line = scanner.nextLine();
+        String[] tokens = line.toLowerCase().split(" ");
+        if (tokens.length != 2){
+            throw new ClientException("Error: incorrect move format");
+        }
+        String startPos = tokens[0];
+        String endPos = tokens[1];
+        Integer startCol = columns.get(startPos.substring(0, 1));
+        Integer endCol = columns.get(endPos.substring(0, 1));
+        int startRow = Integer.parseInt(startPos.substring(1, 2));
+        int endRow = Integer.parseInt(endPos.substring(1, 2));
+
+        ChessPiece piece = game.getBoard().getPiece(new ChessPosition(startRow, startCol));
+
+        ChessMove move;
+
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN && (endRow == 8 || endRow ==1)){
+            out.print("select promotion piece [rook|queen|bishop|knight]\n"
+                    + SET_TEXT_COLOR_LIGHT_GREY + "[PROMOTION PIECE] >> "+ SET_TEXT_COLOR_GREEN);
+
+            line = scanner.nextLine();
+            tokens = line.toLowerCase().split(" ");
+            if (tokens.length != 1 || !promotionPieces.containsKey(tokens[0])){
+                throw new ClientException("Error: incorrect promotion piece format");
+            }
+            ChessPiece.PieceType type = promotionPieces.get(tokens[0]);
+            move = new ChessMove(new ChessPosition(startRow, startCol), new ChessPosition(endRow, endCol), type);
+        }else{
+            move = new ChessMove(new ChessPosition(startRow, startCol), new ChessPosition(endRow, endCol), null);
+        }
+
+        ws.makeMove(server.authToken, gameID, move, color);
+
+        return "move executed";
     }
 
     private void resign() throws ClientException{
