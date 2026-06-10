@@ -9,6 +9,7 @@ import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
+import jakarta.websocket.OnMessage;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
@@ -48,23 +49,25 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    @Override
+    @OnMessage
     public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
         try {
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
-                case CONNECT -> connect(command.getAuthToken(), command.getGameID(), command, (Session) ctx.session);
-                case MAKE_MOVE -> makeMove(command.getAuthToken(), command.getGameID(), command, (Session) ctx.session);
-                case LEAVE -> leave(command.getAuthToken(), command.getGameID(), command, (Session) ctx.session);
-                case RESIGN -> resign(command.getAuthToken(), command.getGameID(), command, (Session) ctx.session);
+                case CONNECT -> connect(ctx.message(), (Session) ctx.session);
+                case MAKE_MOVE -> makeMove(ctx.message(), (Session) ctx.session);
+                case LEAVE -> leave(ctx.message(), (Session) ctx.session);
+                case RESIGN -> resign(ctx.message(), (Session) ctx.session);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
-    private void connect(String authToken, Integer gameID, UserGameCommand command, Session session) throws SQLException, DataAccessException, IOException {
-        ConnectCommand connectCommand = (ConnectCommand) command;
+    private void connect(String rawMessage, Session session) throws SQLException, DataAccessException, IOException {
+        ConnectCommand connectCommand = new Gson().fromJson(rawMessage, ConnectCommand.class);
+        String authToken = connectCommand.getAuthToken();
+        int gameID = connectCommand.getGameID();
         AuthData authData = authDAO.getAuth(authToken);
         String username = authData.username();
         String color = connectCommand.getColor();
@@ -90,8 +93,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         session.getRemote().sendString(new Gson().toJson(loadGameMessage));
     }
 
-    private void makeMove(String authToken, Integer gameID, UserGameCommand command, Session session) throws DataAccessException, InvalidMoveException {
-        MoveCommand moveCommand = (MoveCommand) command;
+    private void makeMove(String rawMessage, Session session) throws DataAccessException, InvalidMoveException {
+        MoveCommand moveCommand = new Gson().fromJson(rawMessage, MoveCommand.class);
+        String authToken = moveCommand.getAuthToken();
+        int gameID = moveCommand.getGameID();
         GameData gameData = gameDAO.getGame(gameID);
         ChessGame game = gameData.game();
         ChessMove move = moveCommand.getMove();
@@ -132,9 +137,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    private void leave(String authToken, Integer gameID, UserGameCommand command, Session session) throws DataAccessException, IOException {
-        LeaveCommand leaveCommand = (LeaveCommand) command;
+    private void leave(String rawMessage, Session session) throws DataAccessException, IOException {
+        LeaveCommand leaveCommand = new Gson().fromJson(rawMessage, LeaveCommand.class);
         String color = leaveCommand.getColor();
+        int gameID = leaveCommand.getGameID();
+        String authToken = leaveCommand.getAuthToken();
 
         connections.remove(gameID, session);
         AuthData authData = authDAO.getAuth(authToken);
@@ -163,7 +170,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.broadcast(gameID, session, notifMessage);
     }
 
-    private void resign(String authToken, Integer gameID, UserGameCommand command, Session session) throws DataAccessException, IOException {
+    private void resign(String rawMessage, Session session) throws DataAccessException, IOException {
+        ResignCommand resignCommand = new Gson().fromJson(rawMessage, ResignCommand.class);
+        String authToken = resignCommand.getAuthToken();
+        int gameID = resignCommand.getGameID();
         AuthData authData = authDAO.getAuth(authToken);
         String username = authData.username();
 
