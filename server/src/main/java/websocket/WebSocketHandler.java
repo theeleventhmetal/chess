@@ -20,9 +20,9 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
-import javax.management.Notification;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Map;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
@@ -45,7 +45,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @Override
-    public void handleClose(@NotNull WsCloseContext wsCloseContext) throws Exception {
+    public void handleClose(@NotNull WsCloseContext wsCloseContext) {
         System.out.println("Websocket closed");
     }
 
@@ -60,11 +60,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case RESIGN -> resign(ctx.message(), (Session) ctx.session);
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            ex.getMessage();
         }
     }
 
-    private void connect(String rawMessage, Session session) throws SQLException, DataAccessException, IOException {
+    private void connect(String rawMessage, Session session) throws IOException {
         ConnectCommand connectCommand = new Gson().fromJson(rawMessage, ConnectCommand.class);
         String authToken = connectCommand.getAuthToken();
         int gameID = connectCommand.getGameID();
@@ -102,7 +102,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
 
-    private void makeMove(String rawMessage, Session session) throws DataAccessException, InvalidMoveException, IOException {
+    private void makeMove(String rawMessage, Session session) throws DataAccessException, IOException {
+        Map<Integer, String> columns = Map.of(
+                1, "a", 2, "b", 3, "c", 4, "d",
+                5, "e", 6, "f", 7, "g", 8, "h"
+        );
         MoveCommand moveCommand = new Gson().fromJson(rawMessage, MoveCommand.class);
         String authToken = moveCommand.getAuthToken();
         int gameID = moveCommand.getGameID();
@@ -138,7 +142,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             ChessPosition endPos = move.getEndPosition();
             ChessPiece piece = game.getBoard().getPiece(endPos);
 
-            String message = String.format("%s has moved their %s from position: %s to position %s", username, piece.toString(), startPos, endPos.toString());
+            String startPosCol = columns.get(startPos.getColumn());
+            String startPosRow = columns.get(startPos.getRow());
+            String endPosCol = columns.get(endPos.getColumn());
+            String endPosRow = columns.get(endPos.getRow());
+
+            String message = String.format("%s has moved their %s from position: %s%s to position %s%s",
+                    username, piece.toString(), startPosCol, startPosRow, endPosCol, endPosRow);
 
             var notifMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
             var loadMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
@@ -206,7 +216,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         ResignCommand resignCommand = new Gson().fromJson(rawMessage, ResignCommand.class);
         String authToken = resignCommand.getAuthToken();
         int gameID = resignCommand.getGameID();
-        AuthData authData = authDAO.getAuth(authToken);
         GameData gameData = gameDAO.getGame(gameID);
         String color;
         try {
