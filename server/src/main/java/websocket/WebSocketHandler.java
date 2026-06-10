@@ -14,6 +14,7 @@ import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import websocket.commands.*;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -55,7 +56,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case CONNECT -> connect(command.getAuthToken(), command.getGameID(), command, (Session) ctx.session);
                 case MAKE_MOVE -> makeMove(command.getAuthToken(), command.getGameID(), command, (Session) ctx.session);
                 case LEAVE -> leave(command.getAuthToken(), command.getGameID(), command, (Session) ctx.session);
-                case RESIGN -> resign();
+                case RESIGN -> resign(command.getAuthToken(), command.getGameID(), command, (Session) ctx.session);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -126,16 +127,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 var notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, winMessage);
                 connections.broadcast(gameID, null, notificationMessage);
             }
-
-
-
-
-
-
-        }catch (InvalidMoveException e){
-            throw new DataAccessException(e.getMessage());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        }catch (InvalidMoveException | IOException e){
+            ErrorMessage errorMessage = new ErrorMessage(websocket.messages.ServerMessage.ServerMessageType.ERROR, e.getMessage());
         }
     }
 
@@ -187,6 +180,4 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         var notifMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(gameID, session, notifMessage);
     }
-
-
 }

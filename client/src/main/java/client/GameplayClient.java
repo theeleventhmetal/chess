@@ -7,7 +7,12 @@ import com.google.gson.Gson;
 import model.ErrorResult;
 import server.ClientException;
 import server.ServerFacade;
+import websocket.ServerMessageHandler;
 import websocket.WebSocketFacade;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -18,9 +23,8 @@ import java.util.Scanner;
 import static java.lang.System.out;
 import static ui.EscapeSequences.*;
 
-public class GameplayClient {
+public class GameplayClient implements ServerMessageHandler{
     private ServerFacade server;
-    private final WebSocketFacade ws;
     private String color;
     private static final Map<ChessPiece.PieceType, String> PIECE_MAP= Map.of(
             ChessPiece.PieceType.BISHOP, "B",
@@ -33,15 +37,15 @@ public class GameplayClient {
 
 
 
-    public GameplayClient(ServerFacade server, WebSocketFacade ws, String color, State state) {
+    public GameplayClient(ServerFacade server, WebSocketFacade ws, String color, State state) throws ClientException {
         this.server = server;
-        this.ws = ws;
         this.color = color;
         this.state = state;
+        WebSocketFacade ws = new WebSocketFacade();
     }
 
     private static final int BOARD_SIZE_IN_SQUARES = 8;
-    private final ChessGame game = new ChessGame(); //TEMPORARY CHESS GAME JUST FOR RENDERING
+    private ChessGame game;
     String[] whiteLetters = {"a", "b", "c", "d", "e", "f", "g", "h"};
     String[] blackLetters = {"h", "g","f", "e", "d", "c", "b", "a"};
 
@@ -118,16 +122,18 @@ public class GameplayClient {
         return "exiting program";
     }
 
-    private void redraw() throws ClientException{
+    private String redraw() throws ClientException{
         if (color.equals("white")){
             drawWhiteView();
         }
         else if (color.equals("black")){
             drawBlackView();
         }
+        return "Redrawn!";
     }
 
-    private void leave() throws ClientException{
+    private String leave() throws ClientException{
+
 
     }
 
@@ -307,5 +313,31 @@ public class GameplayClient {
     private static void setBlue(PrintStream out) {
         out.print(SET_BG_COLOR_BLUE);
         out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    @Override
+    public void loadGame(ServerMessage message) {
+        LoadGameMessage loadgameMessage = (LoadGameMessage) message;
+        game = loadgameMessage.getGame();
+        if ("black".equals(color)){
+            drawBlackView();
+        }else{
+            drawWhiteView();
+        }
+        printPrompt();
+    }
+
+    @Override
+    public void notify(ServerMessage message) {
+        String notifMessage = ((NotificationMessage) message).getMessage();
+        System.out.print(notifMessage);
+        printPrompt();
+    }
+
+    @Override
+    public void throwError(ServerMessage message) {
+        String errorMessage = ((ErrorMessage) message).getErrorMessage();
+        System.out.print(errorMessage);
+        printPrompt();
     }
 }
