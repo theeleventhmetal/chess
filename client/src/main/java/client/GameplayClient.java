@@ -10,12 +10,9 @@ import server.ClientException;
 import server.ServerFacade;
 import websocket.ServerMessageHandler;
 import websocket.WebSocketFacade;
-import websocket.commands.MoveCommand;
-import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
