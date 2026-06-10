@@ -10,8 +10,9 @@ public class MemoryGameDAO implements GameDAO{
     HashMap<Integer, GameData> games = new HashMap<>();
 
     @Override
-    public void createGame(GameData game) throws DataAccessException {
+    public Integer createGame(GameData game) throws DataAccessException {
         games.put(game.gameID(), game);
+        return 0;
     }
 
     @Override

@@ -20,12 +20,11 @@ public class MySQLGameDAO implements GameDAO{
     private final Gson gson = new Gson();
 
     @Override
-    public void createGame(GameData game) throws DataAccessException {
+    public Integer createGame(GameData game) throws DataAccessException {
         String gameJson = gson.toJson(game.game());
-        var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
-        executeUpdate(
+        var statement = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
+        return executeUpdate(
                 statement,
-                game.gameID(),
                 game.whiteUsername(),
                 game.blackUsername(),
                 game.gameName(),
@@ -84,7 +83,7 @@ public class MySQLGameDAO implements GameDAO{
 
     private GameData readGame(ResultSet rs) throws SQLException {
         var gameID = rs.getInt("gameID");
-        var whiteUsername = rs.getString("whiteUserName");
+        var whiteUsername = rs.getString("whiteUsername");
         var blackUsername = rs.getString("blackUsername");
         var gameName = rs.getString("gameName");
         var game = rs.getString("game");
@@ -92,7 +91,7 @@ public class MySQLGameDAO implements GameDAO{
         return new GameData(gameID, whiteUsername, blackUsername, gameName, gameObject);
     }
 
-    private void executeUpdate(String statement, Object... params) throws DataAccessException {
+    private Integer executeUpdate(String statement, Object... params) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < params.length; i++) {
@@ -100,10 +99,16 @@ public class MySQLGameDAO implements GameDAO{
                     updateHelper(param, ps, i);
                 }
                 ps.executeUpdate();
+                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        return generatedKeys.getInt(1);
+                    }
+                }
             }
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
+        return 0;
     }
 
     private void updateHelper(Object param, PreparedStatement ps, int i) throws SQLException {

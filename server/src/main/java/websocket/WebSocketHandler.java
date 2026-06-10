@@ -71,7 +71,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             AuthData authData = authDAO.getAuth(authToken);
             String username = authData.username();
-            String color = connectCommand.getColor();
+            GameData gameData = gameDAO.getGame(gameID);
+            ChessGame game = gameData.game();
+            String color;
+            if (username.equals(gameData.whiteUsername())) {
+                color = "white";
+            } else if (username.equals(gameData.blackUsername())) {
+                color = "black";
+            } else {
+                color = null; // observer
+            }
             String message;
 
             if (color == null){
@@ -79,12 +88,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }else{
                 message = String.format("%s has joined the game as %s", username, color);
             }
-            GameData gameData = gameDAO.getGame(gameID);
-            ChessGame game = gameData.game();
             connections.add(gameID, session);
             var serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
             connections.broadcast(gameID, session, serverMessage);
             var loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
+            Thread.sleep(1500);
             session.getRemote().sendString(new Gson().toJson(loadGameMessage));
 
         }catch (Exception e){

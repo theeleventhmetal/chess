@@ -72,6 +72,7 @@ public class GameHandler {
     }
 
     public void joinGame(Context ctx){
+        System.out.println("HANDLER CALLED");
         try{
             String authToken = ctx.header("authorization");
             String jsonBody = ctx.body();

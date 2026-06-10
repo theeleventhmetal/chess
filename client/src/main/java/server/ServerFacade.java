@@ -59,7 +59,9 @@ public class ServerFacade {
 
     public void joinGame(JoinGameRequest joinRequest) throws ClientException{
         var request = buildRequest("PUT", "/game", joinRequest);
-        handleResponse(sendRequest(request),null);
+        var response = sendRequest(request);
+        handleResponse(response,null);
+
     }
 
 

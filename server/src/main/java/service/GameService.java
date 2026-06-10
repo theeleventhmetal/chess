@@ -38,12 +38,11 @@ public class GameService {
             throw new BadRequestException("Error: bad request");
         }
 
-        int gameID = ID_COUNTER.getAndIncrement();
         ChessGame game = new ChessGame();
 
-        GameData gameData = new GameData(gameID, null, null, gameName, game);
+        GameData gameData = new GameData(0, null, null, gameName, game);
 
-        gameDAO.createGame(gameData);
+        int gameID = gameDAO.createGame(gameData);
 
         return new CreateGameResult(gameID);
     }

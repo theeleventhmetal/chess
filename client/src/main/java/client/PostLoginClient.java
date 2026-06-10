@@ -28,7 +28,7 @@ public class PostLoginClient {
 
     Map<Integer, GameData> gameMap = new HashMap<>();
 
-    public void run() throws ClientException {
+    public void run() throws ClientException, InterruptedException {
         System.out.print("\n");
         System.out.print(help());
         Scanner scanner = new Scanner(System.in);
@@ -187,8 +187,12 @@ public class PostLoginClient {
     private String observe(String...params) throws ClientException{
         if (params.length >= 1){
             try {
-                int gameID = Integer.parseInt(params[0]);
-                GameData game = gameMap.get(gameID);
+                int gameNumber = Integer.parseInt(params[0]);
+                GameData game = gameMap.get(gameNumber);
+                if (!gameMap.containsKey(gameNumber)){
+                    throw new ClientException("Game does not exist");
+                }
+                gameID = game.gameID();
                 state = State.GAMEPLAY;
                 return "Observing" + game.gameName();
             }

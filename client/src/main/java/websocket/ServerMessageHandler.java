@@ -1,10 +1,13 @@
 package websocket;
 
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 public interface ServerMessageHandler {
 
-    void loadGame(ServerMessage message);
-    void notify(ServerMessage message);
-    void throwError(ServerMessage message);
+    void loadGame(LoadGameMessage message);
+    void notify(NotificationMessage message);
+    void throwError(ErrorMessage message);
 }

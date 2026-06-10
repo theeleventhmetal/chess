@@ -11,6 +11,13 @@ import java.util.Objects;
 public class ServerMessage {
     ServerMessageType serverMessageType;
 
+    @Override
+    public String toString() {
+        return "ServerMessage{" +
+                "serverMessageType=" + serverMessageType +
+                '}';
+    }
+
     public enum ServerMessageType {
         LOAD_GAME,
         ERROR,

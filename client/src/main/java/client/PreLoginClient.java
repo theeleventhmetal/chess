@@ -25,7 +25,7 @@ public class PreLoginClient {
         this.serverUrl = serverUrl;
     }
 
-    public void run() throws ClientException {
+    public void run() throws ClientException, InterruptedException {
         System.out.println("Welcome to chess! Type 'help' to get started.");
         Scanner scanner = new Scanner(System.in);
         var result = "";

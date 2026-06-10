@@ -19,6 +19,7 @@ import websocket.messages.ServerMessage;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -38,6 +39,7 @@ public class GameplayClient implements ServerMessageHandler{
     private State state;
     private WebSocketFacade ws;
     private final int gameID;
+    Collection<ChessPosition> validMoves;
 
 
 
@@ -46,30 +48,30 @@ public class GameplayClient implements ServerMessageHandler{
         this.color = color;
         this.state = state;
         this.gameID = gameID;
-        WebSocketFacade ws = new WebSocketFacade(serverUrl,this);
+        this.ws = new WebSocketFacade(serverUrl,this);
+        this.ws.connect(server.authToken, gameID, color);
     }
 
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private ChessGame game;
     String[] whiteLetters = {"a", "b", "c", "d", "e", "f", "g", "h"};
     String[] blackLetters = {"h", "g","f", "e", "d", "c", "b", "a"};
+    final Map<String, Integer> columns = Map.of(
+            "a", 1, "b", 2, "c", 3, "d", 4,
+            "e", 5, "f", 6, "g", 7, "h", 8
+    );
 
-    public void run(){
+    public void run() {
         System.out.print("\n");
         System.out.print(help());
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")){
-            if (color.equals("white")){
-                drawWhiteView();
-            }
-            else if (color.equals("black")){
-                drawBlackView();
-            }
             printPrompt();
             String line = scanner.nextLine();
             try{
                 result = eval(line);
+                System.out.print(SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e){
                 result = e.toString();
                 var msg = e.toString();
@@ -86,7 +88,7 @@ public class GameplayClient implements ServerMessageHandler{
     }
 
     public String help(){
-        return """
+        return SET_TEXT_COLOR_LIGHT_GREY+ """
                 \n
                 AVAILABLE COMMANDS:
                 redraw - to redraw chess board
@@ -108,8 +110,9 @@ public class GameplayClient implements ServerMessageHandler{
                 case "leave" -> leave();
                 case "move" -> move();
                 case "resign" -> resign();
-                case "highlight" -> highlight();
+//                case "highlight" -> highlight();
                 case "quit" -> quit();
+                case "help" -> help();
                 default -> help();
             };
         } catch (Exception except){
@@ -134,7 +137,7 @@ public class GameplayClient implements ServerMessageHandler{
         else if (color.equals("black")){
             drawBlackView();
         }
-        return "Redrawn!";
+        return "\nRedrawn!";
     }
 
     private String leave() throws ClientException{
@@ -144,7 +147,7 @@ public class GameplayClient implements ServerMessageHandler{
     }
 
     public String moveDialog(){
-        return """
+        return SET_TEXT_COLOR_LIGHT_GREY+ """
                 \n
                 Input desired move formatted as:
                 move <FROM> <TO>
@@ -155,11 +158,6 @@ public class GameplayClient implements ServerMessageHandler{
     }
 
     private String move() throws ClientException{
-        final Map<String, Integer> columns = Map.of(
-                "a", 1, "b", 2, "c", 3, "d", 4,
-                "e", 5, "f", 6, "g", 7, "h", 8
-        );
-
         final Map<String, ChessPiece.PieceType> promotionPieces = Map.of(
                 "queen", ChessPiece.PieceType.QUEEN,
                 "bishop", ChessPiece.PieceType.BISHOP,
@@ -225,8 +223,42 @@ public class GameplayClient implements ServerMessageHandler{
         }
     }
 
-    private void highlight() throws ClientException{
+    public String highlightDialog(){
+        return SET_TEXT_COLOR_LIGHT_GREY+ """
+                \n
+                Input the position of the piece you would like to see possible moves for
+                example:
+                a2
+                """;
+    }
 
+    private String highlight() throws ClientException{
+        out.print(highlightDialog());
+        out.print("\n"+ SET_TEXT_COLOR_LIGHT_GREY + "[INPUT POSITION] >>> " + SET_TEXT_COLOR_GREEN);
+        Scanner scanner = new Scanner(System.in);
+        String line = scanner.nextLine();
+        String[] tokens = line.toLowerCase().split(" ");
+        if (tokens.length != 1){
+            throw new ClientException("Error: incorrect answer format");
+        }
+        String position = tokens[0];
+        Integer col = columns.get(position.substring(0, 1));
+        int row = Integer.parseInt(position.substring(1, 2));
+
+        ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, col));
+        Collection<ChessMove> possibleMoves = piece.pieceMoves(game.getBoard(), new ChessPosition(row, col));
+        for (ChessMove move: possibleMoves){
+            validMoves.add(move.getEndPosition());
+        }
+
+        if (color.equals("black")){
+            drawBlackView();
+        }
+        else{
+            drawWhiteView();
+        }
+
+        return "Possible moves highlighted";
     }
 
 
@@ -291,9 +323,12 @@ public class GameplayClient implements ServerMessageHandler{
     private void drawWhiteRow(PrintStream out, boolean leadingWhite, int row){
             boolean blackSquare = !leadingWhite;
             for(int i = 1; i <= 8; i++){
-                if (blackSquare){
+                ChessPosition currentPos = new ChessPosition(row, i);
+                if (validMoves != null && validMoves.contains(currentPos)) {
+                    setHighlight(out);
+                } else if (blackSquare) {
                     setBlack(out);
-                }else{
+                } else {
                     setWhite(out);
                 }
                 out.print(EMPTY);
@@ -356,9 +391,12 @@ public class GameplayClient implements ServerMessageHandler{
     private void drawBlackRow(PrintStream out, boolean leadingWhite, int row){
         boolean blackSquare = !leadingWhite;
         for (int i = 8; i >= 1; i--){
-            if (blackSquare){
+            ChessPosition currentPos = new ChessPosition(row, i);
+            if (validMoves != null && validMoves.contains(currentPos)) {
+                setHighlight(out);
+            } else if (blackSquare) {
                 setBlack(out);
-            }else{
+            } else {
                 setWhite(out);
             }
             out.print(EMPTY);
@@ -395,10 +433,13 @@ public class GameplayClient implements ServerMessageHandler{
         out.print(SET_TEXT_COLOR_BLACK);
     }
 
+    private static void setHighlight(PrintStream out){
+        out.print(SET_BG_COLOR_YELLOW);
+    }
+
     @Override
-    public void loadGame(ServerMessage message) {
-        LoadGameMessage loadgameMessage = (LoadGameMessage) message;
-        game = loadgameMessage.getGame();
+    public void loadGame(LoadGameMessage message) {
+        game = message.getGame();
         if ("black".equals(color)){
             drawBlackView();
         }else{
@@ -408,16 +449,14 @@ public class GameplayClient implements ServerMessageHandler{
     }
 
     @Override
-    public void notify(ServerMessage message) {
-        String notifMessage = ((NotificationMessage) message).getMessage();
-        System.out.print(notifMessage);
+    public void notify(NotificationMessage message) {
+        System.out.print(message.getMessage());
         printPrompt();
     }
 
     @Override
-    public void throwError(ServerMessage message) {
-        String errorMessage = ((ErrorMessage) message).getErrorMessage();
-        System.out.print(errorMessage);
+    public void throwError(ErrorMessage message) {
+        System.out.print(message.getErrorMessage());
         printPrompt();
     }
 }
