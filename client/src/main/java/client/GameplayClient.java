@@ -19,9 +19,7 @@ import websocket.messages.ServerMessage;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 import static java.lang.System.out;
 import static ui.EscapeSequences.*;
@@ -39,7 +37,7 @@ public class GameplayClient implements ServerMessageHandler{
     private State state;
     private WebSocketFacade ws;
     private final int gameID;
-    Collection<ChessPosition> validMoves;
+    Collection<ChessPosition> validMoves = new ArrayList<>();
 
 
 
@@ -66,8 +64,7 @@ public class GameplayClient implements ServerMessageHandler{
         System.out.print(help());
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("quit")){
-            printPrompt();
+        while (!"quit".equals(result)){
             String line = scanner.nextLine();
             try{
                 result = eval(line);
@@ -77,6 +74,7 @@ public class GameplayClient implements ServerMessageHandler{
                 var msg = e.toString();
                 System.out.print(msg);
             }
+            printPrompt();
             if (state == State.SIGNEDIN){
                 return;
             }
@@ -110,15 +108,17 @@ public class GameplayClient implements ServerMessageHandler{
                 case "leave" -> leave();
                 case "move" -> move();
                 case "resign" -> resign();
-//                case "highlight" -> highlight();
+                case "highlight" -> highlight();
                 case "quit" -> quit();
-                case "help" -> help();
                 default -> help();
             };
         } catch (Exception except){
-            try{
-                var error =  new Gson().fromJson(except.getMessage(), ErrorResult.class);
-                return error.message();
+            try {
+                var error = new Gson().fromJson(except.getMessage(), ErrorResult.class);
+                if (error != null) {
+                    return error.message();
+                }
+                return except.getMessage();
             } catch (com.google.gson.JsonSyntaxException e){
                 return except.getMessage();
             }
@@ -164,45 +164,53 @@ public class GameplayClient implements ServerMessageHandler{
                 "knight", ChessPiece.PieceType.KNIGHT,
                 "rook", ChessPiece.PieceType.ROOK
         );
-
-        out.print(moveDialog());
-        out.print("\n"+ SET_TEXT_COLOR_LIGHT_GREY + "[INPUT MOVE] >>> " + SET_TEXT_COLOR_GREEN);
-
-        Scanner scanner = new Scanner(System.in);
-        String line = scanner.nextLine();
-        String[] tokens = line.toLowerCase().split(" ");
-        if (tokens.length != 2){
-            throw new ClientException("Error: incorrect move format");
-        }
-        String startPos = tokens[0];
-        String endPos = tokens[1];
-        Integer startCol = columns.get(startPos.substring(0, 1));
-        Integer endCol = columns.get(endPos.substring(0, 1));
-        int startRow = Integer.parseInt(startPos.substring(1, 2));
-        int endRow = Integer.parseInt(endPos.substring(1, 2));
-
-        ChessPiece piece = game.getBoard().getPiece(new ChessPosition(startRow, startCol));
-
-        ChessMove move;
-
-        if (piece.getPieceType() == ChessPiece.PieceType.PAWN && (endRow == 8 || endRow ==1)){
-            out.print("select promotion piece [rook|queen|bishop|knight]\n"
-                    + SET_TEXT_COLOR_LIGHT_GREY + "[PROMOTION PIECE] >> "+ SET_TEXT_COLOR_GREEN);
-
-            line = scanner.nextLine();
-            tokens = line.toLowerCase().split(" ");
-            if (tokens.length != 1 || !promotionPieces.containsKey(tokens[0])){
-                throw new ClientException("Error: incorrect promotion piece format");
+        try{
+            out.print(moveDialog());
+            out.print("\n"+ SET_TEXT_COLOR_LIGHT_GREY + "[INPUT MOVE] >>> " + SET_TEXT_COLOR_GREEN);
+            Scanner scanner = new Scanner(System.in);
+            String line = scanner.nextLine();
+            String[] tokens = line.toLowerCase().split(" ");
+            if (tokens.length != 2){
+                throw new ClientException("Error: incorrect move format");
             }
-            ChessPiece.PieceType type = promotionPieces.get(tokens[0]);
-            move = new ChessMove(new ChessPosition(startRow, startCol), new ChessPosition(endRow, endCol), type);
-        }else{
-            move = new ChessMove(new ChessPosition(startRow, startCol), new ChessPosition(endRow, endCol), null);
+            String startPos = tokens[0];
+            String endPos = tokens[1];
+            Integer startCol = columns.get(startPos.substring(0, 1));
+            Integer endCol = columns.get(endPos.substring(0, 1));
+            int startRow = Integer.parseInt(startPos.substring(1, 2));
+            int endRow = Integer.parseInt(endPos.substring(1, 2));
+
+            ChessPiece piece = game.getBoard().getPiece(new ChessPosition(startRow, startCol));
+
+            if (piece == null) {
+                throw new ClientException("Error: There is no piece at the position selected");
+            }
+
+            ChessMove move;
+
+            if (piece.getPieceType() == ChessPiece.PieceType.PAWN && (endRow == 8 || endRow ==1)){
+                out.print("select promotion piece [rook|queen|bishop|knight]\n"
+                        + SET_TEXT_COLOR_LIGHT_GREY + "[PROMOTION PIECE] >> "+ SET_TEXT_COLOR_GREEN);
+
+                line = scanner.nextLine();
+                tokens = line.toLowerCase().split(" ");
+                if (tokens.length != 1 || !promotionPieces.containsKey(tokens[0])){
+                    throw new ClientException("Error: incorrect promotion piece format");
+                }
+                ChessPiece.PieceType type = promotionPieces.get(tokens[0]);
+                move = new ChessMove(new ChessPosition(startRow, startCol), new ChessPosition(endRow, endCol), type);
+            }else{
+                move = new ChessMove(new ChessPosition(startRow, startCol), new ChessPosition(endRow, endCol), null);
+            }
+
+            ws.makeMove(server.authToken, gameID, move, color);
+
+            return "Move executed";
+
+        }catch (Exception e) {
+            throw new ClientException(e.getMessage());
         }
 
-        ws.makeMove(server.authToken, gameID, move, color);
-
-        return "Move executed";
     }
 
     private String resign() throws ClientException{
@@ -216,7 +224,7 @@ public class GameplayClient implements ServerMessageHandler{
         }
         if(tokens[0].equals("y")){
             ws.resign(server.authToken, gameID);
-            return "Successfully resigned from game";
+            return "\n";
         }
         else{
             return "Resignation cancelled";
@@ -238,26 +246,39 @@ public class GameplayClient implements ServerMessageHandler{
         Scanner scanner = new Scanner(System.in);
         String line = scanner.nextLine();
         String[] tokens = line.toLowerCase().split(" ");
-        if (tokens.length != 1){
-            throw new ClientException("Error: incorrect answer format");
+        if (tokens.length != 1 || tokens[0].length() < 2){
+            throw new ClientException("Error: incorrect answer format. Example: e2");
         }
         String position = tokens[0];
-        Integer col = columns.get(position.substring(0, 1));
-        int row = Integer.parseInt(position.substring(1, 2));
-
+        String colLetter = position.substring(0, 1);
+        if (!columns.containsKey(colLetter)) {
+            throw new ClientException("Error: Invalid column '" + colLetter + "'");
+        }
+        Integer col = columns.get(colLetter);
+        int row;
+        try {
+            row = Integer.parseInt(position.substring(1, 2));
+        } catch (NumberFormatException e) {
+            throw new ClientException("Error: Invalid row number");
+        }
+        System.out.println("DEBUG Parsing: position=" + position + " -> internal row=" + row + ", internal col=" + col);
         ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, col));
+
+        if (piece == null) {
+            throw new ClientException("Error: There is no piece at " + position);
+        }
+        validMoves.clear();
         Collection<ChessMove> possibleMoves = piece.pieceMoves(game.getBoard(), new ChessPosition(row, col));
         for (ChessMove move: possibleMoves){
             validMoves.add(move.getEndPosition());
         }
 
-        if (color.equals("black")){
+        if ("black".equals(color)){
             drawBlackView();
         }
         else{
             drawWhiteView();
         }
-
         return "Possible moves highlighted";
     }
 
@@ -456,7 +477,12 @@ public class GameplayClient implements ServerMessageHandler{
 
     @Override
     public void throwError(ErrorMessage message) {
-        System.out.print(message.getErrorMessage());
+        if(message.getErrorMessage() == null){
+            System.out.print("UNMARKED ERROR");
+        }
+        else{
+            System.out.print(message.getErrorMessage());
+        }
         printPrompt();
     }
 }
