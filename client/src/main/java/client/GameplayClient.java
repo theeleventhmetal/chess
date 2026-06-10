@@ -14,6 +14,7 @@ import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -56,7 +57,7 @@ public class GameplayClient implements ServerMessageHandler{
             "e", 5, "f", 6, "g", 7, "h", 8
     );
 
-    public void run() {
+    public void run() throws IOException, ClientException {
         System.out.print("\n");
         System.out.print(help());
         Scanner scanner = new Scanner(System.in);
@@ -73,6 +74,7 @@ public class GameplayClient implements ServerMessageHandler{
             }
             printPrompt();
             if (state == State.SIGNEDIN){
+                ws.close();
                 return;
             }
         }
@@ -128,11 +130,11 @@ public class GameplayClient implements ServerMessageHandler{
     }
 
     private String redraw() throws ClientException{
-        if (color.equals("white")){
-            drawWhiteView();
-        }
-        else if (color.equals("black")){
+        if ("black".equals(color)){
             drawBlackView();
+        }
+        else{
+            drawWhiteView();
         }
         return "\nRedrawn!";
     }
@@ -258,14 +260,13 @@ public class GameplayClient implements ServerMessageHandler{
         } catch (NumberFormatException e) {
             throw new ClientException("Error: Invalid row number");
         }
-        System.out.println("DEBUG Parsing: position=" + position + " -> internal row=" + row + ", internal col=" + col);
         ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, col));
 
         if (piece == null) {
             throw new ClientException("Error: There is no piece at " + position);
         }
         validMoves.clear();
-        Collection<ChessMove> possibleMoves = piece.pieceMoves(game.getBoard(), new ChessPosition(row, col));
+        Collection<ChessMove> possibleMoves = game.validMoves(new ChessPosition(row, col));
         for (ChessMove move: possibleMoves){
             validMoves.add(move.getEndPosition());
         }
@@ -342,6 +343,7 @@ public class GameplayClient implements ServerMessageHandler{
             boolean blackSquare = !leadingWhite;
             for(int i = 1; i <= 8; i++){
                 rowHelper(out, leadingWhite, row, i, blackSquare);
+                blackSquare = !blackSquare;
             }
     }
 
@@ -386,6 +388,7 @@ public class GameplayClient implements ServerMessageHandler{
         boolean blackSquare = !leadingWhite;
         for (int i = 8; i >= 1; i--){
             rowHelper(out, leadingWhite, row, i, blackSquare);
+            blackSquare = !blackSquare;
         }
     }
 
@@ -414,7 +417,6 @@ public class GameplayClient implements ServerMessageHandler{
             out.print(PIECE_MAP.get(type));
         }
         out.print(EMPTY);
-        blackSquare = !blackSquare;
     }
 
 

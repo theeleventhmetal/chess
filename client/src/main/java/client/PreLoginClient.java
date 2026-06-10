@@ -5,6 +5,7 @@ import model.*;
 import server.ClientException;
 import server.ServerFacade;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -24,7 +25,7 @@ public class PreLoginClient {
         this.serverUrl = serverUrl;
     }
 
-    public void run() throws ClientException, InterruptedException {
+    public void run() throws ClientException, InterruptedException, IOException {
         System.out.println("Welcome to chess! Type 'help' to get started.");
         Scanner scanner = new Scanner(System.in);
         var result = "";

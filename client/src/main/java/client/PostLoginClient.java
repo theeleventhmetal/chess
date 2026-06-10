@@ -5,6 +5,7 @@ import server.ClientException;
 import model.*;
 import server.ServerFacade;
 
+import java.io.IOException;
 import java.util.*;
 
 import static ui.EscapeSequences.*;
@@ -28,7 +29,7 @@ public class PostLoginClient {
 
     Map<Integer, GameData> gameMap = new HashMap<>();
 
-    public void run() throws ClientException, InterruptedException {
+    public void run() throws ClientException, InterruptedException, IOException {
         System.out.print("\n");
         System.out.print(help());
         Scanner scanner = new Scanner(System.in);

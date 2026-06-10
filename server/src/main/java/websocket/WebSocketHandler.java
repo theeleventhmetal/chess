@@ -123,9 +123,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             System.out.format("Color: %s\n", color);
             System.out.format("TeamTurn: %s\n", game.getTeamTurn());
             if (("white".equals(color) && game.getTeamTurn() != ChessGame.TeamColor.WHITE) ||
-                    ("black".equals(color) && game.getTeamTurn() != ChessGame.TeamColor.BLACK)
-            || color == null) {
-                ErrorMessage errorMessage = new ErrorMessage(websocket.messages.ServerMessage.ServerMessageType.ERROR, "Error: unauthorized");
+                    ("black".equals(color) && game.getTeamTurn() != ChessGame.TeamColor.BLACK)) {
+                ErrorMessage errorMessage = new ErrorMessage(websocket.messages.ServerMessage.ServerMessageType.ERROR, "Error: Not your turn");
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
+                return;
+            }
+            if(color == null){
+                ErrorMessage errorMessage = new ErrorMessage(websocket.messages.ServerMessage.ServerMessageType.ERROR, "Error: Observer cannot make moves");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
                 return;
             }
@@ -138,11 +142,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             ChessPiece piece = game.getBoard().getPiece(endPos);
 
             String startPosCol = columns.get(startPos.getColumn());
-            String startPosRow = columns.get(startPos.getRow());
+            int startPosRow = startPos.getRow();
             String endPosCol = columns.get(endPos.getColumn());
-            String endPosRow = columns.get(endPos.getRow());
+            int endPosRow = endPos.getRow();
 
-            String message = String.format("%s has moved their %s from position: %s%s to position %s%s",
+            String message = String.format("%s has moved their %s from position: %s%d to position %s%d",
                     username, piece.toString(), startPosCol, startPosRow, endPosCol, endPosRow);
 
             var notifMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
@@ -153,12 +157,30 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             if (game.isInCheckmate(ChessGame.TeamColor.BLACK) ||
                     game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
-                System.out.print("BEGINNING OF IF BLOCK\n");
                 var winMessage = String.format("%s has achieved checkmate! Game is over.", username);
                 game.endGame();
                 var finalGame = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
                 gameDAO.updateGame(finalGame);
                 var notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, winMessage);
+                connections.broadcast(gameID, null, notificationMessage);
+            }
+            if (game.isInStalemate(ChessGame.TeamColor.BLACK) ||
+                    game.isInStalemate(ChessGame.TeamColor.WHITE)){
+                var stalemateMessage = ("You have reached stalemate. Game is over.");
+                game.endGame();
+                var finalGame = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+                gameDAO.updateGame(finalGame);
+                var notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, stalemateMessage);
+                connections.broadcast(gameID, null, notificationMessage);
+            }
+
+            if (game.isInCheck(ChessGame.TeamColor.WHITE) && "white".equals(color)){
+                var checkMessage = String.format("%s has placed %s in check!", gameData.blackUsername(), username);
+                var notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
+                connections.broadcast(gameID, null, notificationMessage);
+            }else if(game.isInCheck(ChessGame.TeamColor.BLACK) && "black".equals(color)){
+                var checkMessage = String.format("%s has placed %s in check!", gameData.whiteUsername(), username);
+                var notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
                 connections.broadcast(gameID, null, notificationMessage);
             }
         }catch (Exception e){

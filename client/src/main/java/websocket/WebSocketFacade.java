@@ -88,4 +88,13 @@ public class WebSocketFacade extends Endpoint {
             throw new ClientException(e.getMessage());
         }
     }
+
+    public void close() throws IOException, ClientException {
+        try{
+            session.close();
+        }catch (IOException e){
+            throw new ClientException(e.getMessage());
+
+        }
+    }
 }
