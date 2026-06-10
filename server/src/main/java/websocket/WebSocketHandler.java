@@ -90,14 +90,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             var serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
             connections.broadcast(gameID, session, serverMessage);
             var loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
-            Thread.sleep(1500);
             session.getRemote().sendString(new Gson().toJson(loadGameMessage));
 
         }catch (Exception e){
             ErrorMessage errorMessage = new ErrorMessage(websocket.messages.ServerMessage.ServerMessageType.ERROR, e.getMessage());
             session.getRemote().sendString(new Gson().toJson(errorMessage));
         }
-
     }
 
     private void makeMove(String rawMessage, Session session) throws DataAccessException, IOException {
@@ -111,7 +109,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         GameData gameData = gameDAO.getGame(gameID);
         ChessGame game = gameData.game();
         ChessMove move = moveCommand.getMove();
-
 
         try{
             String username = authDAO.getAuth(authToken).username();
